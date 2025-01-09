@@ -55,3 +55,47 @@ class Book(AutoCleanFileMixin, DbAuditModel):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class Receiving(DbAuditModel):
+    class StatusChoices(models.TextChoices):
+        PENDING_CONFIRMATION = 'pending_confirmation', '待入库'
+        CONFIRMED = 'confirmed', '已入库'
+
+    class TypeChoices(models.TextChoices):
+        INITIAL = 'initial', '期初入库'
+        PURCHASE = 'purchase', '采购入库'
+        TRANSFER = 'transfer', '调拨入库'
+        PROFIT = 'profit', '盘盈入库'
+        OTHER = 'other', '其他'
+
+    status = models.CharField(max_length=36, verbose_name="状态", choices=StatusChoices.choices,
+                            default=StatusChoices.PENDING_CONFIRMATION)
+    confirm_time = models.DateTimeField(verbose_name="入库时间", null=True, blank=True)
+    type = models.CharField(max_length=36, verbose_name="类型", choices=TypeChoices.choices,
+                          default=TypeChoices.OTHER)
+    receiving_warehouse_name = models.CharField(verbose_name="收货仓库名称", max_length=255)
+    receiving_warehouse_code = models.CharField(verbose_name="收货仓库编码", max_length=100)
+    external_code = models.CharField(verbose_name="外部编码", max_length=100, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = '入库'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.get_type_display()}-{self.receiving_warehouse_name}"
+
+
+class ReceivingItem(DbAuditModel):
+    receiving = models.ForeignKey('Receiving', related_name='items', 
+                                on_delete=models.CASCADE, verbose_name="入库")
+    arrival_quantity = models.IntegerField(verbose_name="到货数量", null=True, blank=True)
+    defect_quantity = models.IntegerField(verbose_name="不合格品数量", null=True, blank=True)
+    external_key = models.CharField(verbose_name="外部标识", max_length=100, null=True, blank=True)
+
+    class Meta:
+        verbose_name = '入库明细'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.receiving}-{self.arrival_quantity}"

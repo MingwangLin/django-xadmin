@@ -81,3 +81,50 @@ class BookSerializer(BaseModelSerializer):
 
     def get_block(self, obj):
         return obj.is_active
+
+
+class ReceivingSerializer(BaseModelSerializer):
+    class Meta:
+        model = models.Receiving
+        fields = [
+            'pk', 'status', 'confirm_time', 'type', 'receiving_warehouse_name',
+            'receiving_warehouse_code', 'external_code', 'created_time', 'updated_time'
+        ]
+        table_fields = [
+            'pk', 'type', 'status', 'receiving_warehouse_name', 'receiving_warehouse_code',
+            'confirm_time', 'external_code'
+        ]
+        extra_kwargs = {
+            'pk': {'read_only': True},
+            'confirm_time': {'read_only': True},
+            'status': {
+                'required': True,
+            },
+            'type': {
+                'required': True,
+            }
+        }
+
+    # Use LabeledChoiceField for choice fields
+    status = serializers.ChoiceField(choices=models.Receiving.StatusChoices.choices, required=True)
+    type = serializers.ChoiceField(choices=models.Receiving.TypeChoices.choices, required=True)
+
+
+class ReceivingItemSerializer(BaseModelSerializer):
+    class Meta:
+        model = models.ReceivingItem
+        fields = [
+            'pk', 'receiving', 'arrival_quantity', 'defect_quantity',
+            'external_key', 'created_time', 'updated_time'
+        ]
+        table_fields = [
+            'pk', 'receiving', 'arrival_quantity', 'defect_quantity', 'external_key'
+        ]
+        extra_kwargs = {
+            'pk': {'read_only': True},
+            'receiving': {
+                'attrs': ['pk', 'receiving_warehouse_name'],
+                'required': True,
+                'format': "{receiving_warehouse_name}({pk})"
+            }
+        }
