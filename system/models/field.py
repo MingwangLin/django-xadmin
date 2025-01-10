@@ -46,3 +46,27 @@ class ModelLabelField(DbAuditModel, DbUuidModel):
 
     def __str__(self):
         return f"{self.label}({self.name})"
+
+
+class ModelLabelFieldExtension(DbAuditModel, DbUuidModel):
+    field = models.OneToOneField('system.ModelLabelField', on_delete=models.CASCADE, verbose_name=_("Field"))
+    align = models.CharField(max_length=32, null=True, blank=True, verbose_name="对齐方式")
+    width = models.IntegerField(null=True, blank=True, verbose_name="宽度")
+    table_visible = models.BooleanField(null=True, blank=True, verbose_name="表格是否可见")
+    table_sortable = models.CharField(max_length=32, null=True, blank=True, verbose_name="表格排序")
+    table_merge = models.BooleanField(null=True, blank=True, verbose_name="表格合并")
+    form_visible = models.BooleanField(null=True, blank=True, verbose_name="表单是否可见")
+    form_is_search = models.BooleanField(null=True, blank=True, verbose_name="是否为搜索字段")
+    form_is_filter = models.BooleanField(null=True, blank=True, verbose_name="是否为过滤字段")
+    form_is_batch_edit = models.BooleanField(null=True, blank=True, verbose_name="是否为批量编辑字段")
+    form_placehold = models.CharField(max_length=128, null=True, blank=True, verbose_name="表单占位符")
+    form_grid = models.IntegerField(null=True, blank=True, verbose_name="表单栅格")
+    form_rules = models.CharField(max_length=256, null=True, blank=True, verbose_name="表单校验规则")
+
+    class Meta:
+        ordering = ('-created_time',)
+        verbose_name = _("Model label field extension")
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.field.label}({self.field.name}) Extension"

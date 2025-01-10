@@ -38,6 +38,7 @@ from common.drf.renders.excel import ExcelFileRenderer
 from common.swagger.utils import get_default_response_schema
 from common.tasks import background_task_view_set_job
 from common.utils import get_logger
+from system.models.field import ModelLabelField
 
 logger = get_logger(__name__)
 
@@ -330,6 +331,40 @@ class SearchColumnsAction(object):
             info = metadata_class.get_field_info(value)
             if hasattr(meta, 'model'):
                 field = get_model_field(meta.model, value.source)
+                # Get model name and field name for ModelLabelField lookup
+                model_name = meta.model._meta.label_lower
+                logger.info(f"model_name: {model_name}")
+                field_name = value.source
+                logger.info(f"field_name: {field_name}")
+                # Look up ModelLabelField and its extension
+                model_field = ModelLabelField.objects.filter(
+                    name=field_name,
+                    parent__name=model_name,
+                    parent__parent=None,
+                    field_type=ModelLabelField.FieldChoices.ROLE
+                ).first()
+                logger.info(f"model_field: {model_field}")
+                if model_field:
+                    try:
+                        extension = model_field.modellabelfieldextension
+                        logger.info(f"extension: {extension}")
+                        # Update info with extension data
+                        info.update({
+                            'align': extension.align,
+                            'width': extension.width,
+                            'table_visible': extension.table_visible,
+                            'table_sortable': extension.table_sortable,
+                            'table_merge': extension.table_merge,
+                            'form_visible': extension.form_visible,
+                            'form_is_search': extension.form_is_search,
+                            'form_is_filter': extension.form_is_filter,
+                            'form_is_batch_edit': extension.form_is_batch_edit,
+                            'form_placehold': extension.form_placehold,
+                            'form_grid': extension.form_grid,
+                            'form_rules': extension.form_rules
+                        })
+                    except ModelLabelField.modellabelfieldextension.RelatedObjectDoesNotExist:
+                        pass
             else:
                 field = None
             info['key'] = key
