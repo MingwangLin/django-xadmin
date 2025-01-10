@@ -107,6 +107,9 @@ class ReceivingSerializer(BaseModelSerializer):
                 'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
                 'input_type': 'api-search-user'
             },
+            'items': {
+                'label': '入库单明细',
+            }
         }
 
     # Use LabeledChoiceField for choice fields
