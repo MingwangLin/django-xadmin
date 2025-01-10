@@ -88,7 +88,7 @@ class ReceivingSerializer(BaseModelSerializer):
         model = models.Receiving
         fields = [
             'pk', 'status', 'confirm_time', 'type', 'receiving_warehouse_name',
-            'receiving_warehouse_code', 'external_code', 'created_time', 'updated_time'
+            'receiving_warehouse_code', 'external_code', 'created_time', 'updated_time', 'items', 'creator'
         ]
         table_fields = [
             'pk', 'type', 'status', 'receiving_warehouse_name', 'receiving_warehouse_code',
@@ -102,7 +102,11 @@ class ReceivingSerializer(BaseModelSerializer):
             },
             'type': {
                 'required': True,
-            }
+            },
+            'creator': {
+                'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
+                'input_type': 'api-search-user'
+            },
         }
 
     # Use LabeledChoiceField for choice fields

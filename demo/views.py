@@ -46,6 +46,38 @@ class BookViewSet(BaseModelSet, ImportExportDataAction):
         return ApiResponse(detail=f"{instance.name} 推送成功")
 
 
+class ReceivingSearchColumnsMixin:
+    """Custom mixin to add subitems to search-columns response for Receiving"""
+    
+    def get_subitems_info(self):
+        """Get subitems info from ReceivingItemViewSet"""
+        # Create a new instance of ReceivingItemViewSet with proper initialization
+        receiving_item_view = ReceivingItemViewSet()
+        receiving_item_view.request = self.request
+        receiving_item_view.format_kwarg = self.format_kwarg
+        receiving_item_view.action = 'search_columns'  # Set the action
+        receiving_item_view.kwargs = {}  # Initialize kwargs
+        receiving_item_view.args = ()    # Initialize args
+        
+        # Get search-columns data from ReceivingItemViewSet
+        response = receiving_item_view.search_columns(self.request)
+        return response.data.get('data', [])
+
+    @action(methods=['get'], detail=False, url_path='search-columns')
+    def search_columns(self, request, *args, **kwargs):
+        """Override search-columns to include subitems"""
+        # Get original response from parent class
+        response = super().search_columns(request, *args, **kwargs)
+        
+        # Find the items field and add subitems
+        for field in response.data['data']:
+            if field['key'] == 'items':
+                field['subitems'] = self.get_subitems_info()
+                break
+        
+        return response
+
+
 class ReceivingViewSetFilter(BaseFilterSet):
     receiving_warehouse_name = filters.CharFilter(field_name='receiving_warehouse_name', lookup_expr='icontains')
     receiving_warehouse_code = filters.CharFilter(field_name='receiving_warehouse_code', lookup_expr='icontains')
@@ -57,7 +89,7 @@ class ReceivingViewSetFilter(BaseFilterSet):
                  'status', 'type', 'created_time']
 
 
-class ReceivingViewSet(BaseModelSet):
+class ReceivingViewSet(ReceivingSearchColumnsMixin, BaseModelSet):
     """入库管理"""
 
     queryset = Receiving.objects.all()
