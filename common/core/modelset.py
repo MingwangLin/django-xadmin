@@ -307,6 +307,12 @@ class SearchColumnsAction(object):
     @action(methods=['get'], detail=False, url_path='search-columns')
     def search_columns(self, request, *args, **kwargs):
         """获取{cls}的展示字段"""
+        logger.info("Starting search_columns method")
+        try:
+            from django.db import connection
+            logger.info(f"Database connection status: {connection.ensure_connection()}")
+        except Exception as e:
+            logger.error(f"Database connection error: {str(e)}")
         results = []
 
         def get_input_type(value, info):
@@ -334,8 +340,6 @@ class SearchColumnsAction(object):
                 # Get model name and field name for ModelLabelField lookup
                 model_name = meta.model._meta.label_lower
                 logger.info(f"model_name: {model_name}")
-                field_name = value.source
-                logger.info(f"field_name: {field_name}")
                 # Look up ModelLabelField and its extension
                 model_field = ModelLabelField.objects.filter(
                     name=key,
@@ -343,11 +347,12 @@ class SearchColumnsAction(object):
                     parent__parent=None,
                     field_type=ModelLabelField.FieldChoices.ROLE
                 ).first()
-                logger.info(f"model_field: {model_field}")
+                
+                logger.info(f"Looking up ModelLabelField for {model_name}.{key}")
+                
                 if model_field:
                     try:
                         extension = model_field.modellabelfieldextension
-                        logger.info(f"extension: {extension}")
                         # Update info with extension data
                         info.update({
                             'align': extension.align,
@@ -364,7 +369,9 @@ class SearchColumnsAction(object):
                             'form_rules': extension.form_rules
                         })
                     except ModelLabelField.modellabelfieldextension.RelatedObjectDoesNotExist:
-                        pass
+                        logger.warning(f"No extension found for ModelLabelField {model_field.pk}")
+                    except Exception as e:
+                        logger.error(f"Error accessing extension for ModelLabelField {model_field.pk}: {str(e)}")
             else:
                 field = None
             info['key'] = key
