@@ -338,7 +338,7 @@ class SearchColumnsAction(object):
                 logger.info(f"field_name: {field_name}")
                 # Look up ModelLabelField and its extension
                 model_field = ModelLabelField.objects.filter(
-                    name=field_name,
+                    name=key,
                     parent__name=model_name,
                     parent__parent=None,
                     field_type=ModelLabelField.FieldChoices.ROLE
