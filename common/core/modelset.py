@@ -341,14 +341,15 @@ class SearchColumnsAction(object):
                 model_name = meta.model._meta.label_lower
                 logger.info(f"model_name: {model_name}")
                 # Look up ModelLabelField and its extension
+                field_name = value.source
                 model_field = ModelLabelField.objects.filter(
-                    name=key,
+                    name=field_name,
                     parent__name=model_name,
                     parent__parent=None,
                     field_type=ModelLabelField.FieldChoices.ROLE
                 ).first()
                 
-                logger.info(f"Looking up ModelLabelField for {model_name}.{key}")
+                logger.info(f"Looking up ModelLabelField for {model_name}.{field_name}")
                 
                 if model_field:
                     try:
