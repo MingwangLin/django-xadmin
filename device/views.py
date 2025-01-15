@@ -1,12 +1,62 @@
-from rest_framework import viewsets
-from .models import Device
-from .serializers import DeviceSerializer
+from django_filters import rest_framework as filters
+
+from common.core.filter import BaseFilterSet
 from common.core.modelset import BaseModelSet, ImportExportDataAction
+from common.core.pagination import DynamicPageNumber
+from device.models import Device, Channel, DeviceChannel
+from device.serializers import DeviceSerializer, ChannelSerializer, DeviceChannelSerializer
+
+
+class ChannelViewSetFilter(BaseFilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    status = filters.CharFilter(field_name='status')
+    stream_status = filters.CharFilter(field_name='stream_status')
+
+    class Meta:
+        model = Channel
+        fields = ['name', 'status', 'stream_status', 'created_time']
+
+
+class ChannelViewSet(BaseModelSet, ImportExportDataAction):
+    """通道管理"""
+    queryset = Channel.objects.all()
+    serializer_class = ChannelSerializer
+    ordering_fields = ['created_time']
+    filterset_class = ChannelViewSetFilter
+    pagination_class = DynamicPageNumber(1000)
+
+
+class DeviceViewSetFilter(BaseFilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    device_id = filters.CharFilter(field_name='device_id', lookup_expr='icontains')
+    manufacturer = filters.CharFilter(field_name='manufacturer', lookup_expr='icontains')
+    type = filters.CharFilter(field_name='type')
+    status = filters.CharFilter(field_name='status')
+
+    class Meta:
+        model = Device
+        fields = ['name', 'device_id', 'manufacturer', 'type', 'status', 'is_bound', 'created_time']
+
 
 class DeviceViewSet(BaseModelSet, ImportExportDataAction):
-    """设备"""  
+    """设备管理"""
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
-    filterset_fields = ['status']
-    search_fields = ['name', 'serial_number']
-    ordering_fields = ['name', 'created_at', 'updated_at'] 
+    ordering_fields = ['created_time']
+    filterset_class = DeviceViewSetFilter
+    pagination_class = DynamicPageNumber(1000)
+
+
+class DeviceChannelViewSet(BaseModelSet):
+    """设备通道关联"""
+    queryset = DeviceChannel.objects.all()
+    serializer_class = DeviceChannelSerializer
+    ordering_fields = ['created_time']
+    pagination_class = DynamicPageNumber(1000)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        device_id = self.request.query_params.get('device_id')
+        if device_id:
+            queryset = queryset.filter(device_id=device_id)
+        return queryset 

@@ -1,8 +1,68 @@
 from rest_framework import serializers
-from .models import Device
 
-class DeviceSerializer(serializers.ModelSerializer):
+from common.core.serializers import BaseModelSerializer
+from common.fields.utils import input_wrapper
+from device import models
+
+
+class ChannelSerializer(BaseModelSerializer):
     class Meta:
-        model = Device
-        fields = '__all__'
-        read_only_fields = ('created_at', 'updated_at') 
+        model = models.Channel
+        fields = [
+            'pk', 'name', 'playlist_name', 'status', 'stream_status', 'url',
+            'expired', 'frag_count', 'frag_duration', 'created_time', 'updated_time'
+        ]
+        table_fields = [
+            'pk', 'name', 'status', 'stream_status', 'url', 'expired'
+        ]
+        extra_kwargs = {
+            'pk': {'read_only': True},
+        }
+
+
+class DeviceSerializer(BaseModelSerializer):
+    label01 = input_wrapper(serializers.SerializerMethodField)(read_only=True, required=False, 
+                                                             input_type='separator',
+                                                             label="基本信息")
+    def get_label01(self, obj):
+        return None
+
+    class Meta:
+        model = models.Device
+        fields = [
+            'label01', 'pk', 'device_id', 'manufacturer', 'name', 'type', 'status',
+            'playlist_name', 'is_bound', 'remark', 'channels', 'created_time', 'updated_time'
+        ]
+        table_fields = [
+            'pk', 'device_id', 'name', 'type', 'status', 'is_bound', 'created_time'
+        ]
+        extra_kwargs = {
+            'pk': {'read_only': True},
+            'channels': {
+                'label': '关联通道',
+            }
+        }
+
+
+class DeviceChannelSerializer(BaseModelSerializer):
+    class Meta:
+        model = models.DeviceChannel
+        fields = [
+            'pk', 'device', 'channel', 'is_active', 'created_time', 'updated_time'
+        ]
+        table_fields = [
+            'pk', 'device', 'channel', 'is_active'
+        ]
+        extra_kwargs = {
+            'pk': {'read_only': True},
+            'device': {
+                'attrs': ['pk', 'name'],
+                'required': True,
+                'format': "{name}({pk})"
+            },
+            'channel': {
+                'attrs': ['pk', 'name'],
+                'required': True,
+                'format': "{name}({pk})"
+            }
+        } 
