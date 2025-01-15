@@ -1,4 +1,6 @@
 from django_filters import rest_framework as filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from common.core.filter import BaseFilterSet
 from common.core.modelset import BaseModelSet, ImportExportDataAction
@@ -45,6 +47,19 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     ordering_fields = ['created_time']
     filterset_class = DeviceViewSetFilter
     pagination_class = DynamicPageNumber(1000)
+
+    @action(methods=['POST'], detail=False)
+    def query(self, request, *args, **kwargs):
+        # Create a new QueryDict with request.data
+        query_dict = request.query_params.copy()
+        for key, value in request.data.items():
+            if isinstance(value, list):
+                query_dict.setlist(key, value)
+            else:
+                query_dict[key] = value
+                
+        request._request.GET = query_dict  # Set the underlying GET parameters
+        return self.list(request, *args, **kwargs)
 
 
 class DeviceChannelViewSet(BaseModelSet):
