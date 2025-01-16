@@ -3,6 +3,6 @@
 
 from django.urls import path, include
 URLPATTERNS = [
-    path('api/project-batch/', include('project_batch.urls')),
+    path('api/projectbatch/', include('project_batch.urls')),
 ]
 PERMISSION_WHITE_REURL = []

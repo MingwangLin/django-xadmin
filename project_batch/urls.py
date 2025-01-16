@@ -7,7 +7,7 @@ app_name = 'project_batch'
 
 router = SimpleRouter(False)
 
-router.register('project-batch', ProjectBatchViewSet, basename='project-batch')
+router.register('projectbatch', ProjectBatchViewSet, basename='projectbatch')
 
 urlpatterns = [
 ]
