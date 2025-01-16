@@ -24,11 +24,21 @@ class ProjectBatch(DbAuditModel, DbUuidModel):
         IN_PROGRESS = 'in_progress', _('In Progress')
         FINISHED = 'finished', _('Finished')
 
+    class ExamTypeChoices(models.IntegerChoices):
+        PaperExam = 0, _('纸笔考')
+        PcExam = 1, _('机考')
+        Other = 2, _('其它')
+
     name = models.CharField(verbose_name=_('Batch Name'), max_length=256, null=True, blank=True)
     code = models.CharField(verbose_name=_('Batch Code'), max_length=50, null=True, blank=True)
     ets_code = models.CharField(verbose_name=_('ETS Code'), max_length=50, null=True, blank=True)
     short_name = models.CharField(verbose_name=_('Short Name'), max_length=50, null=True, blank=True)
-    exam_type = models.IntegerField(verbose_name=_('Exam Type'), null=True, blank=True)
+    exam_type = models.IntegerField(
+        verbose_name=_('Exam Type'),
+        choices=ExamTypeChoices.choices,
+        null=True,
+        blank=True
+    )
     category = models.CharField(
         verbose_name=_('Category'),
         max_length=32,
@@ -41,9 +51,6 @@ class ProjectBatch(DbAuditModel, DbUuidModel):
         choices=ClassificationChoices.choices,
         default=ClassificationChoices.OFFICIAL
     )
-    exam_type_desc = models.CharField(verbose_name=_('Exam Type Description'), max_length=256, null=True, blank=True)
-    exam_system_type_desc = models.CharField(verbose_name=_('Exam System Type Description'), max_length=256, null=True, blank=True)
-    scene_type_desc = models.CharField(verbose_name=_('Scene Type Description'), max_length=256, null=True, blank=True)
     scene_type = models.CharField(
         verbose_name=_('Scene Type'),
         max_length=50,
