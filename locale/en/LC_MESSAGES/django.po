@@ -2275,8 +2275,6 @@ msgstr "SZ"
 msgid "Joy Test"
 msgstr "Joy Test"
 
-msgid "Offline"
-msgstr "Offline"
 
 msgid "None"
 msgstr "None"
@@ -2290,8 +2288,6 @@ msgstr "Finished"
 msgid "Exam Type"
 msgstr "Exam Type"
 
-msgid "Category"
-msgstr "Category"
 
 msgid "Classification"
 msgstr "Classification"
@@ -2344,8 +2340,34 @@ msgstr "Remote Configs"
 msgid "Start Department"
 msgstr "Start Department"
 
-msgid "Department"
-msgstr "Department"
 
 msgid "Project Department"
 msgstr "Project Department"
+
+msgid "Enable AI Monitoring"
+msgstr "Enable AI Monitoring"
+
+msgid "Show ATA Watermark"
+msgstr "Show ATA Watermark"
+
+msgid "Video Display Text"
+msgstr "Video Display Text"
+
+msgid "Videos Per Room"
+msgstr "Videos Per Room"
+
+msgid "Stream Start Time"
+msgstr "Stream Start Time"
+
+msgid "Stream End Time"
+msgstr "Stream End Time"
+
+msgid "Schedule Count"
+msgstr "Schedule Count"
+
+msgid "Total Exam Rooms"
+msgstr "Total Exam Rooms"
+
+msgid "Online Exam Rooms"
+msgstr "Online Exam Rooms"
+

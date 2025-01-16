@@ -17,7 +17,7 @@ class ProjectBatch(DbAuditModel, DbUuidModel):
         ETX = 'etx', _('ETX')
         SZ = 'sz', _('SZ')
         JOYTEST = 'joytest', _('Joy Test')
-        OFFLINE = 'offline', _('Offline')
+        OFFLINE = 'offline', _('Offline Arrangement')
         NONE = 'none', _('None')
 
     class StatusChoices(models.TextChoices):

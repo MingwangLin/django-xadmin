@@ -2295,8 +2295,8 @@ msgstr "上座"
 msgid "Joy Test"
 msgstr "悦考"
 
-msgid "Offline"
-msgstr "线下"
+msgid "Offline Arrangement"
+msgstr "线下编排"
 
 msgid "None"
 msgstr "无"
@@ -2310,8 +2310,7 @@ msgstr "已完成"
 msgid "Exam Type"
 msgstr "考试类型"
 
-msgid "Category"
-msgstr "类别"
+
 
 msgid "Classification"
 msgstr "分类"
@@ -2364,8 +2363,34 @@ msgstr "远程配置"
 msgid "Start Department"
 msgstr "起始部门"
 
-msgid "Department"
-msgstr "部门"
 
 msgid "Project Department"
 msgstr "项目部门"
+
+msgid "Enable AI Monitoring"
+msgstr "启用AI监控"
+
+msgid "Show ATA Watermark"
+msgstr "显示ATA水印"
+
+msgid "Video Display Text"
+msgstr "视频显示文本"
+
+msgid "Videos Per Room"
+msgstr "每间房间的视频数量"
+
+msgid "Stream Start Time"
+msgstr "流开始时间"
+
+msgid "Stream End Time"
+msgstr "流结束时间"
+
+msgid "Schedule Count"
+msgstr "日程数量"
+
+msgid "Total Exam Rooms"
+msgstr "总考场数量"
+
+msgid "Online Exam Rooms"
+msgstr "在线考场数量"
+
