@@ -2096,3 +2096,88 @@ msgstr "邮件不存在"
 #: system/views/auth/verify_code.py:245
 msgid "Username does not exist"
 msgstr "用户名不存在"
+
+# Device Model Translations
+msgid "Channel"
+msgstr "通道"
+
+msgid "Channels"
+msgstr "通道列表"
+
+msgid "Channel Name"
+msgstr "通道名称"
+
+msgid "M3U8 File Name"
+msgstr "M3U8文件名"
+
+msgid "Channel Status"
+msgstr "通道状态"
+
+msgid "Stream Status"
+msgstr "流状态"
+
+msgid "Stream URL"
+msgstr "流地址"
+
+msgid "Expiration Time"
+msgstr "过期时间"
+
+msgid "TS File Count"
+msgstr "TS文件数量"
+
+msgid "TS File Duration"
+msgstr "TS文件时长"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "Disabled"
+msgstr "禁用"
+
+msgid "Online"
+msgstr "在线"
+
+msgid "Offline"
+msgstr "离线"
+
+msgid "Device"
+msgstr "设备"
+
+msgid "Devices"
+msgstr "设备列表"
+
+msgid "Device ID"
+msgstr "设备ID"
+
+msgid "Manufacturer"
+msgstr "制造商"
+
+msgid "Device Name"
+msgstr "设备名称"
+
+msgid "Device Type"
+msgstr "设备类型"
+
+msgid "IPC"
+msgstr "IPC"
+
+msgid "Patrol Assistant"
+msgstr "巡检助手"
+
+msgid "Main M3U8 File Name"
+msgstr "主M3U8文件名"
+
+msgid "Is Bound"
+msgstr "是否绑定"
+
+msgid "Remarks"
+msgstr "备注"
+
+msgid "Device Channel"
+msgstr "设备通道"
+
+msgid "Device Channels"
+msgstr "设备通道列表"
+
+msgid "Is Active"
+msgstr "是否激活"
