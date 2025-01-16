@@ -84,6 +84,12 @@ class ProjectBatch(DbAuditModel, DbUuidModel):
     schedule_count = models.IntegerField(verbose_name=_('Schedule Count'), null=True, blank=True)
     total_exam_rooms = models.IntegerField(verbose_name=_('Total Exam Rooms'), null=True, blank=True)
     online_exam_rooms = models.IntegerField(verbose_name=_('Online Exam Rooms'), null=True, blank=True)
+    stream_start_time = models.DateTimeField(verbose_name=_('Stream Start Time'), null=True, blank=True)
+    stream_end_time = models.DateTimeField(verbose_name=_('Stream End Time'), null=True, blank=True)
+    enable_ai_monitoring = models.BooleanField(verbose_name=_('Enable AI Monitoring'), default=False)
+    show_ata_watermark = models.BooleanField(verbose_name=_('Show ATA Watermark'), default=False)
+    video_display_text = models.CharField(verbose_name=_('Video Display Text'), max_length=256, null=True, blank=True)
+    videos_per_room = models.IntegerField(verbose_name=_('Videos Per Room'), null=True, blank=True)
 
     class Meta:
         verbose_name = _('Project Batch')

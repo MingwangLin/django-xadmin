@@ -23,12 +23,19 @@ class ProjectBatchViewSetFilter(BaseFilterSet):
     schedule_count = filters.NumberFilter()
     total_exam_rooms = filters.NumberFilter()
     online_exam_rooms = filters.NumberFilter()
+    stream_start_time = filters.DateTimeFromToRangeFilter()
+    stream_end_time = filters.DateTimeFromToRangeFilter()
+    enable_ai_monitoring = filters.BooleanFilter()
+    show_ata_watermark = filters.BooleanFilter()
+    video_display_text = filters.CharFilter(lookup_expr='icontains')
+    videos_per_room = filters.NumberFilter()
 
     class Meta:
         model = ProjectBatch
         fields = ['name', 'code', 'category', 'classification', 'status', 'project',
                  'exam_type', 'exam_begin_date', 'exam_end_date', 'created_time', 'schedule_count',
-                 'total_exam_rooms', 'online_exam_rooms']
+                 'total_exam_rooms', 'online_exam_rooms', 'stream_start_time', 'stream_end_time',
+                 'enable_ai_monitoring', 'show_ata_watermark', 'video_display_text', 'videos_per_room']
 
 
 class ProjectBatchViewSet(BaseModelSet, ImportExportDataAction):

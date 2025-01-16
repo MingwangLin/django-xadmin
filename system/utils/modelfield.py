@@ -139,7 +139,7 @@ def create_sample_extensions():
                 form_grid=random.choice([6, 8, 12, 24, None]),
                 form_rules=random.choice(['required', 'email', 'url', None])
             )
-            logger.info(f"Created extension for field: {field.name}")
+            PrintLogFormat(f"Created extension for field: {field.name}").info(f"Created extension for field: {field.name}")
 
 def get_field_lookup_info(fields):
     field_info = {
