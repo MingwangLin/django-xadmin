@@ -74,6 +74,9 @@ class ProjectBatch(DbAuditModel, DbUuidModel):
     start_department = models.CharField(verbose_name=_('Start Department'), max_length=50, null=True, blank=True)
     department = models.CharField(verbose_name=_('Department'), max_length=50, null=True, blank=True)
     project_department = models.CharField(verbose_name=_('Project Department'), max_length=50, null=True, blank=True)
+    schedule_count = models.IntegerField(verbose_name=_('Schedule Count'), null=True, blank=True)
+    total_exam_rooms = models.IntegerField(verbose_name=_('Total Exam Rooms'), null=True, blank=True)
+    online_exam_rooms = models.IntegerField(verbose_name=_('Online Exam Rooms'), null=True, blank=True)
 
     class Meta:
         verbose_name = _('Project Batch')

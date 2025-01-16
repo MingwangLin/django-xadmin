@@ -19,11 +19,15 @@ class ProjectBatchViewSetFilter(BaseFilterSet):
     project = filters.CharFilter(field_name='project')
     exam_begin_date = filters.DateFromToRangeFilter()
     exam_end_date = filters.DateFromToRangeFilter()
+    schedule_count = filters.NumberFilter()
+    total_exam_rooms = filters.NumberFilter()
+    online_exam_rooms = filters.NumberFilter()
 
     class Meta:
         model = ProjectBatch
         fields = ['name', 'code', 'category', 'classification', 'status', 'project',
-                 'exam_begin_date', 'exam_end_date', 'created_time']
+                 'exam_begin_date', 'exam_end_date', 'created_time', 'schedule_count',
+                 'total_exam_rooms', 'online_exam_rooms']
 
 
 class ProjectBatchViewSet(BaseModelSet, ImportExportDataAction):

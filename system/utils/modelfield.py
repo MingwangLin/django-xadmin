@@ -108,7 +108,37 @@ def sync_model_field():
     activate(settings.LANGUAGE_CODE)
     get_app_model_fields()
     get_sub_serializer_fields()
+    create_sample_extensions()
 
+def create_sample_extensions():
+    import random
+    from system.models import ModelLabelFieldExtension
+    # Get all ModelLabelField records
+    fields = ModelLabelField.objects.all()
+    
+    # Possible values for align and table_sortable
+    align_choices = ['left', 'center', 'right']
+    sortable_choices = ['asc', 'desc', None]
+    
+    # Create extension for each field
+    for field in fields:
+        # Check if extension already exists
+        if not ModelLabelFieldExtension.objects.filter(field=field).exists():
+            ModelLabelFieldExtension.objects.create(
+                field=field,
+                align=random.choice(align_choices),
+                width=random.randint(100, 300),
+                table_visible=random.choice([True]),
+                table_sortable=random.choice(sortable_choices),
+                table_merge=random.choice([False]),
+                form_visible=random.choice([True]),
+                form_is_search=random.choice([True, False, None]),
+                form_is_filter=random.choice([True, False, None]),
+                form_is_batch_edit=random.choice([True, False, None]),
+                form_placehold=f"Please enter {field.label}" if random.choice([True, False]) else None,
+                form_grid=random.choice([6, 8, 12, 24, None]),
+                form_rules=random.choice(['required', 'email', 'url', None])
+            )
 
 def get_field_lookup_info(fields):
     field_info = {

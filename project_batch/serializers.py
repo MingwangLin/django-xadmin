@@ -15,11 +15,13 @@ class ProjectBatchSerializer(BaseModelSerializer):
             'demands', 'tags', 'sync_timestamp', 'sync_allowed', 'sync_time',
             'remote_configs', 'manager', 'project_name', 'project_code',
             'start_department', 'department', 'project_department',
+            'schedule_count', 'total_exam_rooms', 'online_exam_rooms',
             'created_time', 'updated_time'
         ]
         table_fields = [
             'pk', 'name', 'code', 'category', 'classification', 'status',
-            'exam_begin_date', 'exam_end_date', 'created_time'
+            'exam_begin_date', 'exam_end_date', 'schedule_count', 'total_exam_rooms',
+            'online_exam_rooms', 'created_time'
         ]
         extra_kwargs = {
             'pk': {'read_only': True}
