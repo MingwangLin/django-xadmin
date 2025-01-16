@@ -2181,3 +2181,191 @@ msgstr "设备通道列表"
 
 msgid "Is Active"
 msgstr "是否激活"
+
+# Project Model Translations
+msgid "Project"
+msgstr "项目"
+
+msgid "Projects"
+msgstr "项目列表"
+
+msgid "Company ID"
+msgstr "公司ID"
+
+msgid "Organizer"
+msgstr "组织者"
+
+msgid "Project Name"
+msgstr "项目名称"
+
+msgid "Project Code"
+msgstr "项目编码"
+
+msgid "ETS Code"
+msgstr "ETS编码"
+
+msgid "Manager"
+msgstr "管理员"
+
+msgid "Manager Email"
+msgstr "管理员邮箱"
+
+msgid "Undertaker"
+msgstr "承办人"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Push Time"
+msgstr "推送时间"
+
+msgid "Agreement Template"
+msgstr "协议模板"
+
+msgid "Project Encode"
+msgstr "项目编码"
+
+msgid "Program Code"
+msgstr "程序编码"
+
+msgid "Program Encode"
+msgstr "程序编码"
+
+msgid "Short Name"
+msgstr "简称"
+
+msgid "Show Examinees"
+msgstr "显示考生"
+
+msgid "Set Book"
+msgstr "设置书籍"
+
+msgid "Bill Calculation Type"
+msgstr "账单计算类型"
+
+msgid "Back Rate"
+msgstr "返还率"
+
+msgid "Sync ID"
+msgstr "同步ID"
+
+msgid "Draft"
+msgstr "草稿"
+
+msgid "Active"
+msgstr "激活"
+
+msgid "Completed"
+msgstr "完成"
+
+msgid "Archived"
+msgstr "归档"
+
+# ProjectBatch Model Translations
+msgid "Project Batch"
+msgstr "项目批次"
+
+msgid "Project Batches"
+msgstr "项目批次列表"
+
+msgid "Batch Name"
+msgstr "批次名称"
+
+msgid "Batch Code"
+msgstr "批次编码"
+
+msgid "Official"
+msgstr "正式"
+
+msgid "Estimated"
+msgstr "预估"
+
+msgid "Test"
+msgstr "测试"
+
+msgid "Formal"
+msgstr "正式"
+
+msgid "ETX"
+msgstr "ETX"
+
+msgid "SZ"
+msgstr "上座"
+
+msgid "Joy Test"
+msgstr "悦考"
+
+msgid "Offline"
+msgstr "线下"
+
+msgid "None"
+msgstr "无"
+
+msgid "In Progress"
+msgstr "进行中"
+
+msgid "Finished"
+msgstr "已完成"
+
+msgid "Exam Type"
+msgstr "考试类型"
+
+msgid "Category"
+msgstr "类别"
+
+msgid "Classification"
+msgstr "分类"
+
+msgid "Exam Type Description"
+msgstr "考试类型描述"
+
+msgid "Exam System Type Description"
+msgstr "考试系统类型描述"
+
+msgid "Scene Type Description"
+msgstr "场景类型描述"
+
+msgid "Scene Type"
+msgstr "场景类型"
+
+msgid "Invigilator Type"
+msgstr "监考类型"
+
+msgid "Exam Begin Date"
+msgstr "考试开始日期"
+
+msgid "Exam End Date"
+msgstr "考试结束日期"
+
+msgid "Confirm Begin Date"
+msgstr "确认开始日期"
+
+msgid "Confirm End Date"
+msgstr "确认结束日期"
+
+msgid "Exam Requirements"
+msgstr "考试要求"
+
+msgid "Tags"
+msgstr "标签"
+
+msgid "Sync Timestamp"
+msgstr "同步时间戳"
+
+msgid "Sync Allowed"
+msgstr "允许同步"
+
+msgid "Sync Time"
+msgstr "同步时间"
+
+msgid "Remote Configs"
+msgstr "远程配置"
+
+msgid "Start Department"
+msgstr "起始部门"
+
+msgid "Department"
+msgstr "部门"
+
+msgid "Project Department"
+msgstr "项目部门"

@@ -2161,3 +2161,191 @@ msgstr "Device Channels"
 
 msgid "Is Active"
 msgstr "Is Active"
+
+# Project Model Translations
+msgid "Project"
+msgstr "Project"
+
+msgid "Projects"
+msgstr "Projects"
+
+msgid "Company ID"
+msgstr "Company ID"
+
+msgid "Organizer"
+msgstr "Organizer"
+
+msgid "Project Name"
+msgstr "Project Name"
+
+msgid "Project Code"
+msgstr "Project Code"
+
+msgid "ETS Code"
+msgstr "ETS Code"
+
+msgid "Manager"
+msgstr "Manager"
+
+msgid "Manager Email"
+msgstr "Manager Email"
+
+msgid "Undertaker"
+msgstr "Undertaker"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Push Time"
+msgstr "Push Time"
+
+msgid "Agreement Template"
+msgstr "Agreement Template"
+
+msgid "Project Encode"
+msgstr "Project Encode"
+
+msgid "Program Code"
+msgstr "Program Code"
+
+msgid "Program Encode"
+msgstr "Program Encode"
+
+msgid "Short Name"
+msgstr "Short Name"
+
+msgid "Show Examinees"
+msgstr "Show Examinees"
+
+msgid "Set Book"
+msgstr "Set Book"
+
+msgid "Bill Calculation Type"
+msgstr "Bill Calculation Type"
+
+msgid "Back Rate"
+msgstr "Back Rate"
+
+msgid "Sync ID"
+msgstr "Sync ID"
+
+msgid "Draft"
+msgstr "Draft"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Completed"
+msgstr "Completed"
+
+msgid "Archived"
+msgstr "Archived"
+
+# ProjectBatch Model Translations
+msgid "Project Batch"
+msgstr "Project Batch"
+
+msgid "Project Batches"
+msgstr "Project Batches"
+
+msgid "Batch Name"
+msgstr "Batch Name"
+
+msgid "Batch Code"
+msgstr "Batch Code"
+
+msgid "Official"
+msgstr "Official"
+
+msgid "Estimated"
+msgstr "Estimated"
+
+msgid "Test"
+msgstr "Test"
+
+msgid "Formal"
+msgstr "Formal"
+
+msgid "ETX"
+msgstr "ETX"
+
+msgid "SZ"
+msgstr "SZ"
+
+msgid "Joy Test"
+msgstr "Joy Test"
+
+msgid "Offline"
+msgstr "Offline"
+
+msgid "None"
+msgstr "None"
+
+msgid "In Progress"
+msgstr "In Progress"
+
+msgid "Finished"
+msgstr "Finished"
+
+msgid "Exam Type"
+msgstr "Exam Type"
+
+msgid "Category"
+msgstr "Category"
+
+msgid "Classification"
+msgstr "Classification"
+
+msgid "Exam Type Description"
+msgstr "Exam Type Description"
+
+msgid "Exam System Type Description"
+msgstr "Exam System Type Description"
+
+msgid "Scene Type Description"
+msgstr "Scene Type Description"
+
+msgid "Scene Type"
+msgstr "Scene Type"
+
+msgid "Invigilator Type"
+msgstr "Invigilator Type"
+
+msgid "Exam Begin Date"
+msgstr "Exam Begin Date"
+
+msgid "Exam End Date"
+msgstr "Exam End Date"
+
+msgid "Confirm Begin Date"
+msgstr "Confirm Begin Date"
+
+msgid "Confirm End Date"
+msgstr "Confirm End Date"
+
+msgid "Exam Requirements"
+msgstr "Exam Requirements"
+
+msgid "Tags"
+msgstr "Tags"
+
+msgid "Sync Timestamp"
+msgstr "Sync Timestamp"
+
+msgid "Sync Allowed"
+msgstr "Sync Allowed"
+
+msgid "Sync Time"
+msgstr "Sync Time"
+
+msgid "Remote Configs"
+msgstr "Remote Configs"
+
+msgid "Start Department"
+msgstr "Start Department"
+
+msgid "Department"
+msgstr "Department"
+
+msgid "Project Department"
+msgstr "Project Department"
