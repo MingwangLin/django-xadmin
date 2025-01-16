@@ -21,16 +21,11 @@ class ChannelSerializer(BaseModelSerializer):
 
 
 class DeviceSerializer(BaseModelSerializer):
-    label01 = input_wrapper(serializers.SerializerMethodField)(read_only=True, required=False, 
-                                                             input_type='separator',
-                                                             label="基本信息")
-    def get_label01(self, obj):
-        return None
 
     class Meta:
         model = models.Device
         fields = [
-            'label01', 'pk', 'device_id', 'manufacturer', 'name', 'type', 'status',
+            'pk', 'device_id', 'manufacturer', 'name', 'type', 'status',
             'playlist_name', 'is_bound', 'remark', 'channels', 'created_time', 'updated_time'
         ]
         table_fields = [
