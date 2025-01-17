@@ -23,6 +23,7 @@ class QuerysetHelper:
 
     @classmethod
     def apply_filter(cls, queryset, filter_dict):
+        filter_dict = filter_dict or dict()
         rel = filter_dict.get('rel', 'and').lower()
         q_list = []
         for condition in filter_dict.get('cond', []):

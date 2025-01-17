@@ -14,6 +14,9 @@ from device.serializers import DeviceSerializer, ChannelSerializer, DeviceChanne
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.plumbing import build_array_type, build_basic_type
+from common.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class ChannelViewSetFilter(BaseFilterSet):
@@ -60,9 +63,8 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        request_data = self.request.query_params
-        filter_dict = QuerysetHelper.get_filter_dict(request_data)
-        queryset = QuerysetHelper.apply_filter(queryset, filter_dict)
+        request_data = self.request.data or {}
+        queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
         queryset = QuerysetHelper.get_general_sort_kyes_filtered_queryset(request_data, queryset, self.model)
         queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filter_fields)
         return queryset 
@@ -91,20 +93,7 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     )
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
-        # Create a new QueryDict with request.data
-        query_dict = request.query_params.copy()
-        for key, value in request.data.items():
-            if key in ['filter', 'sortkeys']:
-                if value is not None:
-                    query_dict[key] = json.dumps(value)
-                else:
-                    query_dict[key] = ''
-            elif isinstance(value, list):
-                query_dict.setlist(key, value)
-            else:
-                query_dict[key] = value
-                
-        request._request.GET = query_dict  # Set the underlying GET parameters
+        
         return self.list(request, *args, **kwargs)
 
     @action(methods=['POST'], detail=True)
