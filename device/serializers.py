@@ -29,7 +29,8 @@ class DeviceSerializer(BaseModelSerializer):
             'playlist_name', 'is_bound', 'remark', 'channels', 'created_time', 'updated_time'
         ]
         table_fields = [
-            'pk', 'device_id', 'name', 'type', 'status', 'is_bound', 'created_time'
+            'pk', 'device_id', 'manufacturer', 'name', 'type', 'status',
+            'playlist_name', 'is_bound', 'remark', 'created_time', 'updated_time'
         ]
         extra_kwargs = {
             'pk': {'read_only': True},

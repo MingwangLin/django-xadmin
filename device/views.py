@@ -1,3 +1,5 @@
+import json
+
 from django_filters import rest_framework as filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -5,6 +7,7 @@ from rest_framework.response import Response
 from common.core.filter import BaseFilterSet
 from common.core.modelset import BaseModelSet, ImportExportDataAction
 from common.core.pagination import DynamicPageNumber
+from common.core.queryset_helper import QuerysetHelper
 from common.core.response import ApiResponse
 from device.models import Device, Channel, DeviceChannel
 from device.serializers import DeviceSerializer, ChannelSerializer, DeviceChannelSerializer
@@ -38,7 +41,7 @@ class DeviceViewSetFilter(BaseFilterSet):
 
     class Meta:
         model = Device
-        fields = ['name', 'device_id', 'manufacturer', 'type', 'status', 'is_bound', 'created_time']
+        fields = ['name', 'device_id', 'manufacturer', 'type', 'status', 'is_bound', 'created_time', 'remark']
 
 
 class DeviceViewSet(BaseModelSet, ImportExportDataAction):
@@ -48,13 +51,29 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     ordering_fields = ['created_time']
     filterset_class = DeviceViewSetFilter
     pagination_class = DynamicPageNumber(1000)
+    model = Device
+    filter_fields = ['name', 'device_id', 'manufacturer', 'type', 'status', 'is_bound', 'created_time', 'remark']
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        request_data = self.request.query_params
+        filter_dict = QuerysetHelper.get_filter_dict(request_data)
+        queryset = QuerysetHelper.apply_filter(queryset, filter_dict)
+        queryset = QuerysetHelper.get_general_sort_kyes_filtered_queryset(request_data, queryset, self.model)
+        queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filter_fields)
+        return queryset 
+    
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
         # Create a new QueryDict with request.data
         query_dict = request.query_params.copy()
         for key, value in request.data.items():
-            if isinstance(value, list):
+            if key in ['filter', 'sortkeys']:
+                if value is not None:
+                    query_dict[key] = json.dumps(value)
+                else:
+                    query_dict[key] = ''
+            elif isinstance(value, list):
                 query_dict.setlist(key, value)
             else:
                 query_dict[key] = value
