@@ -10,12 +10,28 @@ import logging
 logger = logging.getLogger(__name__)
 
 class QuerysetHelper:
+    """
+    A helper class for handling Django queryset operations including filtering, sorting, and searching.
+    
+    This class provides utility methods to process and apply filters, sort operations, and text searches
+    on Django querysets in a flexible and reusable way.
+    """
 
     def __init__(self):
         super(QuerysetHelper, self).__init__()
 
     @classmethod
     def get_filter_dict(cls, request_data):
+        """
+        Extracts and processes filter parameters from request data.
+
+        Args:
+            request_data (dict): The request data containing filter parameters.
+
+        Returns:
+            dict: A processed dictionary containing filter conditions.
+                The filter data should be in JSON format under the 'filter' key.
+        """
         filter_param = request_data.get('filter')
         filter_dict = JsonHelper.get_loaded_dict(filter_param)
         filter_dict = StrHelper.decode_json_strings(filter_dict)
@@ -23,6 +39,35 @@ class QuerysetHelper:
 
     @classmethod
     def apply_filter(cls, queryset, filter_dict):
+        """
+        Applies complex filtering conditions to a Django queryset.
+
+        Args:
+            queryset (QuerySet): The Django queryset to filter.
+            filter_dict (dict): A dictionary containing filter conditions with the following structure:
+                {
+                    'rel': str,  # Relationship between conditions ('and'/'or')
+                    'cond': [    # List of conditions
+                        {
+                            'field': str,     # Field name (supports nested fields with '.')
+                            'method': str,     # Filter method (e.g., 'exact', 'contains', 'in')
+                            'value': any,      # Filter value
+                            'type': str       # Value type (e.g., 'text', 'datetime')
+                        }
+                    ]
+                }
+
+        Returns:
+            QuerySet: Filtered queryset based on the provided conditions.
+
+        Features:
+            - Supports nested field filtering using dot notation
+            - Handles datetime filtering with exact minute precision
+            - Supports negation of conditions using '~' prefix
+            - Special handling for NULL values and empty lists
+            - Supports datetime formula-based filtering
+            - Combines multiple conditions using AND/OR logic
+        """
         filter_dict = filter_dict or dict()
         rel = filter_dict.get('rel', 'and').lower()
         q_list = []
@@ -122,19 +167,21 @@ class QuerysetHelper:
         Applies sorting to a queryset based on provided sort keys, handling nested model relationships.
 
         Args:
-            sortKeys (list): List of strings representing sort fields. Each key can be prefixed with '-' 
-                           for descending order. Keys can use '__' notation for nested relationships.
-            queryset (QuerySet): The Django queryset to sort.
-            model (Model): The Django model class associated with the queryset.
+            sortKeys (list): List of strings representing sort fields. Each key can be:
+                           - Prefixed with '-' for descending order
+                           - Use dot notation for nested relationships
+                           - Use Django's double underscore notation
+            queryset (QuerySet): The Django queryset to sort
+            model (Model): The Django model class associated with the queryset
 
         Returns:
-            QuerySet: A new queryset ordered by the specified sort keys.
+            QuerySet: A new queryset ordered by the specified sort keys
 
         Raises:
-            ValueError: If a specified relationship field doesn't exist in the model.
+            ValueError: If a specified relationship field doesn't exist in the model
 
         Example:
-            sortKeys = ['name', '-created_at', 'department__name']
+            sortKeys = ['name', '-created_at', 'department.name']
             sorted_queryset = get_general_sort_keys_filtered_queryset(sortKeys, queryset, User)
         """
         sortKeys = sortKeys or list()
@@ -166,6 +213,22 @@ class QuerysetHelper:
 
     @classmethod
     def get_search_text_multiple_filtered_queryset(cls, request_get_dict, queryset, filter_fields):
+        """
+        Performs a case-insensitive text search across multiple fields in a queryset.
+
+        Args:
+            request_get_dict (dict): Request parameters containing 'searchtext' key
+            queryset (QuerySet): The Django queryset to filter
+            filter_fields (list): List of field names to search within
+
+        Returns:
+            QuerySet: Filtered queryset containing records that match the search text
+                     in any of the specified fields
+
+        Example:
+            filter_fields = ['name', 'description', 'email']
+            filtered_qs = get_search_text_multiple_filtered_queryset(request.GET, queryset, filter_fields)
+        """
         search_text = request_get_dict.get('searchtext')
         if search_text:
             query = Q()
