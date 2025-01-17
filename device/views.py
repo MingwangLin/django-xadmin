@@ -47,28 +47,7 @@ class DeviceViewSetFilter(BaseFilterSet):
         fields = ['name', 'device_id', 'manufacturer', 'type', 'status', 'is_bound', 'created_time', 'remark']
 
 
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='filter',
-            type=OpenApiTypes.OBJECT,
-            description='Complex filter object with format: {"rel": "and|or", "cond": [{"field": "field_name", "method": "exact|contains|in|etc", "value": "value", "type": "text|datetime|etc"}]}',
-            required=False
-        ),
-        OpenApiParameter(
-            name='sortkeys',
-            type=build_array_type(build_basic_type(OpenApiTypes.STR)),
-            description='List of fields to sort by. Prefix with "-" for descending order. Example: ["-created_time", "name"]',
-            required=False
-        ),
-        OpenApiParameter(
-            name='searchtext',
-            type=OpenApiTypes.STR,
-            description='Text to search across multiple fields defined in filter_fields',
-            required=False
-        ),
-    ]
-)
+
 class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     """设备管理"""
     queryset = Device.objects.all()
@@ -88,6 +67,28 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
         queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filter_fields)
         return queryset 
     
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='filter',
+                type=OpenApiTypes.OBJECT,
+                description='Complex filter object with format: {"rel": "and|or", "cond": [{"field": "field_name", "method": "exact|contains|in|etc", "value": "value", "type": "text|datetime|etc"}]}',
+                required=False
+            ),
+            OpenApiParameter(
+                name='sortkeys',
+                type=build_array_type(build_basic_type(OpenApiTypes.STR)),
+                description='List of fields to sort by. Prefix with "-" for descending order. Example: ["-created_time", "name"]',
+                required=False
+            ),
+            OpenApiParameter(
+                name='searchtext',
+                type=OpenApiTypes.STR,
+                description='Text to search across multiple fields defined in filter_fields',
+                required=False
+            ),
+        ]
+    )
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
         # Create a new QueryDict with request.data
