@@ -117,19 +117,9 @@ class QuerysetHelper:
         return queryset.filter(combined_q)
 
     @classmethod
-    def get_general_sort_kyes_filtered_queryset(cls, request_get_dict, queryset, model):
-        """
-
-        :param request_get_dict:
-        :param queryset:
-        :param model: initial model
-        :return:
-        """
-        from django.db import models
-
-        sortKeys = JsonHelper.get_loaded_list(request_get_dict.get('sortkeys'))
+    def get_general_sort_keys_filtered_queryset(cls, sortKeys, queryset, model):
+        sortKeys = sortKeys or list()
         sortKeys = StrHelper.get_dot_transformed_list(sortKeys)
-
         processed_sort_keys = []
 
         for key in sortKeys:
@@ -146,28 +136,15 @@ class QuerysetHelper:
                 else:
                     raise ValueError(f"No related model found for field '{part}' in model '{current_model.__name__}'.")
 
-            # Get the final field
-            final_field_name = field_parts[-1]
-            final_field = current_model._meta.get_field(final_field_name)
-            is_integer = isinstance(final_field, (models.IntegerField, models.AutoField, models.DecimalField))
-
-            if is_integer:
-                # Add field as is for integer types
-                if descending:
-                    processed_sort_keys.append('-' + field_path)
-                else:
-                    processed_sort_keys.append(field_path)
+            if descending:
+                processed_sort_keys.append('-' + field_path)
             else:
-                # Use Convert class for non-integer types
-                if descending:
-                    processed_sort_keys.append(Convert(field_path, 'gbk').desc())
-                else:
-                    processed_sort_keys.append(Convert(field_path, 'gbk').asc())
+                processed_sort_keys.append(field_path)
 
         # Order the queryset based on processed sortKeys
         queryset = queryset.order_by(*processed_sort_keys)
         return queryset
-    
+
     @classmethod
     def get_search_text_multiple_filtered_queryset(cls, request_get_dict, queryset, filter_fields):
         search_text = request_get_dict.get('searchtext')

@@ -1,11 +1,15 @@
 from django.shortcuts import render
 from django_filters import rest_framework as filters
+from drf_spectacular.plumbing import build_array_type, build_basic_type
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from common.core.filter import BaseFilterSet
 from common.core.modelset import BaseModelSet, ImportExportDataAction
 from common.core.pagination import DynamicPageNumber
+from common.core.queryset_helper import QuerysetHelper
 from project_batch.models import ProjectBatch
 from project_batch.serializers import ProjectBatchSerializer
 
@@ -48,20 +52,36 @@ class ProjectBatchViewSet(BaseModelSet, ImportExportDataAction):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        project_id = self.request.query_params.get('project_id')
-        if project_id:
-            queryset = queryset.filter(project_id=project_id)
+        request_data = self.request.data or {}
+        queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
+        queryset = QuerysetHelper.get_general_sort_keys_filtered_queryset(request_data.get('sortkeys'), queryset,
+                                                                          queryset.model)
+        queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset,
+                                                                             self.filterset_class.get_fields().keys())
         return queryset
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='filter',
+                type=OpenApiTypes.OBJECT,
+                description='Complex filter object with format: {"rel": "and|or", "cond": [{"field": "field_name", "method": "exact|contains|in|etc", "value": "value", "type": "text|datetime|etc"}]}',
+                required=False
+            ),
+            OpenApiParameter(
+                name='sortkeys',
+                type=build_array_type(build_basic_type(OpenApiTypes.STR)),
+                description='List of fields to sort by. Prefix with "-" for descending order. Example: ["-created_time", "name"]',
+                required=False
+            ),
+            OpenApiParameter(
+                name='searchtext',
+                type=OpenApiTypes.STR,
+                description='Text to search across multiple fields defined in filter_fields',
+                required=False
+            ),
+        ]
+    )
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
-        # Create a new QueryDict with request.data
-        query_dict = request.query_params.copy()
-        for key, value in request.data.items():
-            if isinstance(value, list):
-                query_dict.setlist(key, value)
-            else:
-                query_dict[key] = value
-                
-        request._request.GET = query_dict  # Set the underlying GET parameters
         return self.list(request, *args, **kwargs)

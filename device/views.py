@@ -59,14 +59,13 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     filterset_class = DeviceViewSetFilter
     pagination_class = DynamicPageNumber(1000)
     model = Device
-    filter_fields = ['name', 'device_id', 'manufacturer', 'type', 'status', 'is_bound', 'created_time', 'remark']
 
     def get_queryset(self):
         queryset = super().get_queryset()
         request_data = self.request.data or {}
         queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
-        queryset = QuerysetHelper.get_general_sort_kyes_filtered_queryset(request_data, queryset, self.model)
-        queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filter_fields)
+        queryset = QuerysetHelper.get_general_sort_keys_filtered_queryset(request_data.get('sortkeys'), queryset, queryset.model)
+        queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filterset_class.get_fields().keys())
         return queryset 
     
     @extend_schema(
@@ -93,7 +92,6 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     )
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
-        
         return self.list(request, *args, **kwargs)
 
     @action(methods=['POST'], detail=True)
