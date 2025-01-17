@@ -118,6 +118,25 @@ class QuerysetHelper:
 
     @classmethod
     def get_general_sort_keys_filtered_queryset(cls, sortKeys, queryset, model):
+        """
+        Applies sorting to a queryset based on provided sort keys, handling nested model relationships.
+
+        Args:
+            sortKeys (list): List of strings representing sort fields. Each key can be prefixed with '-' 
+                           for descending order. Keys can use '__' notation for nested relationships.
+            queryset (QuerySet): The Django queryset to sort.
+            model (Model): The Django model class associated with the queryset.
+
+        Returns:
+            QuerySet: A new queryset ordered by the specified sort keys.
+
+        Raises:
+            ValueError: If a specified relationship field doesn't exist in the model.
+
+        Example:
+            sortKeys = ['name', '-created_at', 'department__name']
+            sorted_queryset = get_general_sort_keys_filtered_queryset(sortKeys, queryset, User)
+        """
         sortKeys = sortKeys or list()
         sortKeys = StrHelper.get_dot_transformed_list(sortKeys)
         processed_sort_keys = []
