@@ -16,10 +16,6 @@ class DeviceViewSetTests(APITestCase):
         self.client.defaults['HTTP_USER_AGENT'] = 'Mozilla/5.0 (test)'
         self.client.defaults['HTTP_ACCEPT'] = 'application/json'
         
-        # Create user with proper permissions
-        from django.contrib.auth.models import Permission
-        from django.contrib.contenttypes.models import ContentType
-        
         # Create admin user first (will be used as creator)
         self.admin_user = UserInfo.objects.create_user(
             username='admin',
