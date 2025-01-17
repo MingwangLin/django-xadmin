@@ -2,10 +2,12 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
+import mock
 
 from device.models import Device
 from device.serializers import DeviceSerializer
 from system.models import UserInfo
+from device.models import Channel, DeviceChannel
 
 
 class DeviceViewSetTests(APITestCase):
@@ -213,4 +215,102 @@ class DeviceViewSetTests(APITestCase):
         """Test export data with invalid type"""
         response = self.client.get(f"{self.export_url}?type=invalid")
         print("Response data:", response.data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK) 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @mock.patch('common.core.oss_helper.OSSHelper')
+    def test_bind_channel_success(self, mock_oss_helper):
+        """Test binding a channel to a device successfully"""
+        # Mock OSS helper and bucket
+        mock_bucket = mock.MagicMock()
+        mock_create_result = mock.MagicMock()
+        mock_create_result.publish_url = 'rtmp://test.com/live/test'
+        mock_create_result.play_url = 'http://test.com/live/test.m3u8'
+        
+        mock_bucket.create_live_channel.return_value = mock_create_result
+        mock_oss_helper.return_value.get_bucket_instance.return_value = mock_bucket
+
+        # Make the bind channel request
+        bind_url = reverse('device:device-bind-channel', kwargs={'pk': self.device_1.pk})
+        response = self.client.post(bind_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['data']['success'])
+        
+        # Verify channel was created
+        channel = response.data['data']['channel']
+        self.assertTrue(channel['name'].startswith('channel_DEV001_'))
+        self.assertEqual(channel['status']['value'], Channel.StatusChoices.ENABLED)
+        self.assertEqual(channel['stream_status']['value'], Channel.StreamStatusChoices.OFFLINE)
+        
+        # Verify device was updated
+        self.device_1.refresh_from_db()
+        self.assertTrue(self.device_1.is_bound)
+        
+        # Verify device channel association
+        device_channel = DeviceChannel.objects.filter(device=self.device_1, is_active=True)
+        self.assertEqual(device_channel.count(), 1)
+        
+        # Verify old channels were deactivated
+        old_channels = DeviceChannel.objects.filter(device=self.device_1, is_active=False)
+        self.assertEqual(old_channels.count(), 0)  # Should be 0 since this is first binding
+
+    @mock.patch('common.core.oss_helper.OSSHelper')
+    def test_bind_channel_multiple_times(self, mock_oss_helper):
+        """Test binding multiple channels to a device"""
+        # Mock OSS helper and bucket
+        mock_bucket = mock.MagicMock()
+        mock_create_result = mock.MagicMock()
+        mock_create_result.publish_url = 'rtmp://test.com/live/test'
+        mock_create_result.play_url = 'http://test.com/live/test.m3u8'
+        
+        mock_bucket.create_live_channel.return_value = mock_create_result
+        mock_oss_helper.return_value.get_bucket_instance.return_value = mock_bucket
+
+        bind_url = reverse('device:device-bind-channel', kwargs={'pk': self.device_1.pk})
+        
+        # First binding
+        response1 = self.client.post(bind_url)
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        
+        # Second binding
+        response2 = self.client.post(bind_url)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        
+        # Verify only one active channel
+        active_channels = DeviceChannel.objects.filter(device=self.device_1, is_active=True)
+        self.assertEqual(active_channels.count(), 1)
+        
+        # Verify one inactive channel
+        inactive_channels = DeviceChannel.objects.filter(device=self.device_1, is_active=False)
+        self.assertEqual(inactive_channels.count(), 1)
+
+    @mock.patch('common.core.oss_helper.OSSHelper')
+    def test_bind_channel_oss_failure(self, mock_oss_helper):
+        """Test binding channel when OSS operations fail"""
+        # Mock OSS helper to raise an exception
+        mock_bucket = mock.MagicMock()
+        mock_bucket.create_live_channel.side_effect = Exception('OSS Error')
+        mock_oss_helper.return_value.get_bucket_instance.return_value = mock_bucket
+
+        bind_url = reverse('device:device-bind-channel', kwargs={'pk': self.device_1.pk})
+        response = self.client.post(bind_url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['detail'], 'OSS Error')
+        
+        # Verify no channel was created
+        self.assertEqual(Channel.objects.count(), 0)
+        
+        # Verify device was not updated
+        self.device_1.refresh_from_db()
+        self.assertFalse(self.device_1.is_bound)
+        
+        # Verify no device channel association was created
+        self.assertEqual(DeviceChannel.objects.count(), 0)
+
+    def test_bind_channel_invalid_device(self):
+        """Test binding channel to non-existent device"""
+        bind_url = reverse('device:device-bind-channel', kwargs={'pk': 99999})
+        response = self.client.post(bind_url)
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST) 
