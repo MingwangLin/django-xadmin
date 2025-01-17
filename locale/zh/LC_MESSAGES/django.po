@@ -2325,7 +2325,7 @@ msgid "Scene Type Description"
 msgstr "场景类型描述"
 
 msgid "Scene Type"
-msgstr "场景类型"
+msgstr "编排系统类型"
 
 msgid "Invigilator Type"
 msgstr "监考类型"
@@ -2337,10 +2337,10 @@ msgid "Exam End Date"
 msgstr "考试结束日期"
 
 msgid "Confirm Begin Date"
-msgstr "确认开始日期"
+msgstr "落实开始日期"
 
 msgid "Confirm End Date"
-msgstr "确认结束日期"
+msgstr "落实结束日期"
 
 msgid "Exam Requirements"
 msgstr "考试要求"
@@ -2361,11 +2361,13 @@ msgid "Remote Configs"
 msgstr "远程配置"
 
 msgid "Start Department"
-msgstr "起始部门"
+msgstr "业务部归属"
 
+msgid "Business Department"
+msgstr "业务部"
 
 msgid "Project Department"
-msgstr "项目部门"
+msgstr "项目部归属"
 
 msgid "Enable AI Monitoring"
 msgstr "启用AI监控"

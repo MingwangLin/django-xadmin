@@ -79,7 +79,7 @@ class ProjectBatch(DbAuditModel, DbUuidModel):
     project_name = models.CharField(verbose_name=_('Project Name'), max_length=256, null=True, blank=True)
     project_code = models.CharField(verbose_name=_('Project Code'), max_length=50, null=True, blank=True)
     start_department = models.CharField(verbose_name=_('Start Department'), max_length=50, null=True, blank=True)
-    department = models.CharField(verbose_name=_('Department'), max_length=50, null=True, blank=True)
+    department = models.CharField(verbose_name=_('Business Department'), max_length=50, null=True, blank=True)
     project_department = models.CharField(verbose_name=_('Project Department'), max_length=50, null=True, blank=True)
     schedule_count = models.IntegerField(verbose_name=_('Schedule Count'), null=True, blank=True)
     total_exam_rooms = models.IntegerField(verbose_name=_('Total Exam Rooms'), null=True, blank=True)
