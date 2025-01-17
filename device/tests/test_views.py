@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
@@ -12,6 +11,12 @@ from device.models import Channel, DeviceChannel
 
 class DeviceViewSetTests(APITestCase):
     def setUp(self):
+        # Clear the database first
+        Device.objects.all().delete()
+        UserInfo.objects.all().delete()
+        Channel.objects.all().delete()
+        DeviceChannel.objects.all().delete()
+        
         self.client = APIClient()
         self.client.defaults['HTTP_USER_AGENT'] = 'Mozilla/5.0 (test)'
         self.client.defaults['HTTP_ACCEPT'] = 'application/json'
@@ -68,6 +73,14 @@ class DeviceViewSetTests(APITestCase):
         self.query_url = reverse('device:device-query')
         self.batch_destroy_url = reverse('device:device-batch-destroy')
         self.export_url = reverse('device:device-export-data')
+
+    def tearDown(self):
+        # Clean up all test data after each test
+        Device.objects.all().delete()
+        UserInfo.objects.all().delete()
+        Channel.objects.all().delete()
+        DeviceChannel.objects.all().delete()
+        super().tearDown()
 
     def test_list_devices(self):
         """Test retrieving a list of devices"""

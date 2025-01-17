@@ -64,6 +64,7 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
 
     @action(methods=['POST'], detail=True)
     def bind_channel(self, request, *args, **kwargs):
+        """绑定通道"""
         try:
             device = self.get_object()
             
