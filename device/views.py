@@ -50,7 +50,6 @@ class DeviceViewSetFilter(BaseFilterSet):
         fields = ['name', 'device_id', 'manufacturer', 'type', 'status', 'is_bound', 'created_time', 'remark']
 
 
-
 class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     """设备管理"""
     queryset = Device.objects.all()
@@ -62,10 +61,12 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        request_data = self.request.data or {}
-        queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
-        queryset = QuerysetHelper.get_general_sort_keys_filtered_queryset(request_data.get('sortkeys'), queryset, queryset.model)
-        queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filterset_class.get_fields().keys())
+        request_data = self.request.data
+
+        if type(request_data) == dict:
+            queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
+            queryset = QuerysetHelper.get_general_sort_keys_filtered_queryset(request_data.get('sortkeys'), queryset, queryset.model)
+            queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filterset_class.get_fields().keys())
         return queryset 
     
     @extend_schema(

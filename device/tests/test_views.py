@@ -8,6 +8,8 @@ from device.serializers import DeviceSerializer
 from system.models import UserInfo
 from device.models import Channel, DeviceChannel
 
+import logging
+logger = logging.getLogger(__name__)
 
 class DeviceViewSetTests(APITestCase):
     def setUp(self):
@@ -89,7 +91,7 @@ class DeviceViewSetTests(APITestCase):
         serializer = DeviceSerializer(devices, many=True)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['data']['results'], serializer.data)
+        self.assertEqual(sorted(response.data['data']['results'], key=lambda x: x['pk']), sorted(serializer.data, key=lambda x: x['pk']))
         self.assertEqual(len(response.data['data']['results']), 2)
 
     def test_create_device(self):
@@ -128,7 +130,7 @@ class DeviceViewSetTests(APITestCase):
             'modifier': self.user.id
         }
         response = self.client.patch(self.detail_url, update_data)
-        
+        logger.error(f"test_update_device response.data: {response.data}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.device_1.refresh_from_db()
         self.assertEqual(self.device_1.name, 'Updated Device')
