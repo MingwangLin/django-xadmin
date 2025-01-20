@@ -393,6 +393,89 @@ class SearchColumnsAction(object):
             results.append(info)
         return ApiResponse(data=results)
 
+    @extend_schema(
+        responses=get_default_response_schema(
+            {
+                'data': build_array_type(
+                    build_object_type(
+                        properties={
+                            'key': build_basic_type(OpenApiTypes.STR),
+                            'label': build_basic_type(OpenApiTypes.STR),
+                            'help_text': build_basic_type(OpenApiTypes.STR),
+                            'default': build_basic_type(OpenApiTypes.ANY),
+                            'input_type': build_basic_type(OpenApiTypes.STR),
+                            'required': build_basic_type(OpenApiTypes.BOOL),
+                            'read_only': build_basic_type(OpenApiTypes.BOOL),
+                            'write_only': build_basic_type(OpenApiTypes.BOOL),
+                            'multiple': build_basic_type(OpenApiTypes.BOOL),
+                            'max_length': build_basic_type(OpenApiTypes.NUMBER),
+                            'table_show': build_basic_type(OpenApiTypes.NUMBER),
+                            'label_visible': build_basic_type(OpenApiTypes.BOOL),
+                            'describe': build_basic_type(OpenApiTypes.STR),
+                            'style': build_basic_type(OpenApiTypes.STR),
+                            'color': build_basic_type(OpenApiTypes.STR),
+                            'label_color': build_basic_type(OpenApiTypes.STR),
+                            'field_auth': build_basic_type(OpenApiTypes.STR),
+                            'form_grid': build_basic_type(OpenApiTypes.NUMBER),
+                            'choices': build_array_type(
+                                build_object_type(
+                                    properties={
+                                        'pk': build_basic_type(OpenApiTypes.STR),
+                                        'value': build_basic_type(OpenApiTypes.STR),
+                                        'label': build_basic_type(OpenApiTypes.STR),
+                                    }
+                                )
+                            )
+                        }
+                    )
+                )
+            }
+        )
+    )
+    @action(methods=['get'], detail=False, url_path='search-columns-edit')
+    def search_columns_edit(self, request, *args, **kwargs):
+        """获取{cls}的展示字段（包含分隔字段）"""
+        # First get the base results from search_columns
+        response = self.search_columns(request, *args, **kwargs)
+        results = response.data.get('data', [])
+        
+        # Get the model name
+        serializer = self.get_serializer()
+        meta = getattr(serializer, 'Meta', {})
+        if hasattr(meta, 'model'):
+            model_name = meta.model._meta.label_lower
+            
+            # Query ModelSeparationField for additional fields
+            from system.models.field import ModelSeparationField
+            separation_fields = ModelSeparationField.objects.filter(
+                model_name=model_name
+            ).order_by('table_show')
+            
+            # Add separation fields to results
+            for field in separation_fields:
+                field_info = {
+                    'key': field.name,
+                    'label': field.label,
+                    'label_visible': field.label_visible,
+                    'describe': field.describe,
+                    'style': field.style,
+                    'color': field.color,
+                    'label_color': field.label_color,
+                    'field_auth': field.field_auth,
+                    'form_grid': float(field.form_grid) if field.form_grid else None,
+                    'table_show': float(field.table_show) if field.table_show else None,
+                    'input_type': 'separation',  # Special type for separation fields
+                    'required': False,
+                    'read_only': False,
+                    'write_only': False,
+                }
+                results.append(field_info)
+                
+            # Sort results by table_show if available
+            results.sort(key=lambda x: (x.get('table_show', float('inf')) or float('inf')))
+            
+        return ApiResponse(data=results)
+
 
 class BaseViewSet(object):
     action: Callable
