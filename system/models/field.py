@@ -88,7 +88,7 @@ class ModelSeparationField(DbAuditModel, DbUuidModel):
     class Meta:
         ordering = ('table_show',)
         unique_together = ('model_name', 'name')
-        verbose_name = _("模型分隔字段")
+        verbose_name = _("Model separation field")
         verbose_name_plural = verbose_name
 
     def __str__(self):
