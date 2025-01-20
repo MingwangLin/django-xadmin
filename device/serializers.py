@@ -26,7 +26,7 @@ class DeviceSerializer(BaseModelSerializer):
         model = models.Device
         fields = [
             'pk', 'device_id', 'manufacturer', 'name', 'type', 'status',
-            'playlist_name', 'is_bound', 'remark', 'channels', 'created_time', 'updated_time'
+            'playlist_name', 'is_bound', 'remark', 'channels', 'creator', 'modifier', 'created_time', 'updated_time'
         ]
         table_fields = [
             'pk', 'device_id', 'manufacturer', 'name', 'type', 'status',
@@ -36,6 +36,14 @@ class DeviceSerializer(BaseModelSerializer):
             'pk': {'read_only': True},
             'channels': {
                 'label': '关联通道',
+            },
+            'creator': {
+                'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
+                'input_type': 'api-search-user'
+            },
+            'modifier': {
+                'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
+                'input_type': 'api-search-user'
             }
         }
 
