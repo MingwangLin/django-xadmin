@@ -70,3 +70,26 @@ class ModelLabelFieldExtension(DbAuditModel, DbUuidModel):
 
     def __str__(self):
         return f"{self.field.label}({self.field.name}) Extension"
+
+
+class ModelSeparationField(DbAuditModel, DbUuidModel):
+    model_name = models.CharField(verbose_name=_("数据模型名称"), max_length=128)
+    name = models.CharField(verbose_name=_("字段名称"), max_length=128)
+    label = models.CharField(verbose_name=_("标题"), max_length=128)
+    label_visible = models.BooleanField(verbose_name=_("显示标题"), default=True)
+    describe = models.TextField(verbose_name=_("描述信息"), null=True, blank=True)
+    style = models.CharField(verbose_name=_("样式"), max_length=128, null=True, blank=True)
+    color = models.CharField(verbose_name=_("配色"), max_length=32, null=True, blank=True)
+    label_color = models.CharField(verbose_name=_("标题配色"), max_length=32, null=True, blank=True)
+    field_auth = models.CharField(verbose_name=_("字段权限"), max_length=128, null=True, blank=True)
+    form_grid = models.DecimalField(verbose_name=_("字段宽度"), max_digits=5, decimal_places=2, null=True, blank=True)
+    table_show = models.DecimalField(verbose_name=_("显示排序"), max_digits=5, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        ordering = ('table_show',)
+        unique_together = ('model_name', 'name')
+        verbose_name = _("模型分隔字段")
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.label}({self.name})"
