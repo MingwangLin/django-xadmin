@@ -17,6 +17,8 @@ from common.base.magic import MagicCacheData
 from server.utils import get_current_request, set_current_request
 from system.models import Menu, FieldPermission
 
+import logging
+logger = logging.getLogger(__name__)
 
 def get_user_menu_queryset(user_obj):
     q = Q()
@@ -106,11 +108,13 @@ class IsAuthenticated(BasePermission):
                     return True
             permission_data = get_user_permission(request.user, request.method)
             # 处理search-columns字段权限和list权限一致
-            match_group = re.match("(?P<url>.*)/search-columns$", url)
+            match_group = re.match("(?P<url>.*)/search-columns-edit$", url)
+            logger.info(f"permission_data: {permission_data}")
+            logger.info(f"match_group: {match_group}")
             if match_group:
                 url = match_group.group('url')
             p_data = p_data_new = get_menu_pk(permission_data, url)
-
+            logger.info(f"p_data: {p_data}")
             if p_data:
                 # 导入导出功能，若未绑定模型，则使用list, create菜单
                 match_group = re.match("(?P<url>.*)/(export|import)-data$", url)
@@ -123,6 +127,7 @@ class IsAuthenticated(BasePermission):
                 request.user.menu = p_data_new[0]
                 if settings.PERMISSION_FIELD_ENABLED:
                     request.fields = get_user_field_queryset(request.user, p_data_new[0])
+                logger.info(f"request.fields: {request.fields}")
                 return True
 
             raise PermissionDenied(_("Permission denied"))
