@@ -84,20 +84,15 @@ class BookSerializer(BaseModelSerializer):
 
 
 class ReceivingSerializer(BaseModelSerializer):
-    label01 = input_wrapper(serializers.SerializerMethodField)(read_only=True, required=False, input_type='separator',
-                                                             label="第一分组")
-    def get_label01(self, obj):
-        return None
-
-
+    
     class Meta:
         model = models.Receiving
         fields = [
-            'label01', 'pk', 'status', 'confirm_time', 'type', 'receiving_warehouse_name',
+            'pk', 'status', 'confirm_time', 'type', 'receiving_warehouse_name',
             'receiving_warehouse_code', 'external_code', 'created_time', 'updated_time', 'items', 'creator'
         ]
         table_fields = [
-            'label01', 'pk', 'type', 'status', 'receiving_warehouse_name', 'receiving_warehouse_code',
+            'pk', 'type', 'status', 'receiving_warehouse_name', 'receiving_warehouse_code',
             'confirm_time', 'external_code'
         ]
         extra_kwargs = {
