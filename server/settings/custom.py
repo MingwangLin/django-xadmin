@@ -25,7 +25,6 @@ ROUTE_IGNORE_URL = [
     "^/api/system/.*choices$",  # 每个方法都有该路由，则忽略即可
     "^/api/.*search-fields$",  # 每个方法都有该路由，则忽略即可
     "^/api/.*search-columns$",  # 该路由使用list权限字段，无需重新配置
-    "^/api/.*search-columns-edit$",  # 该路由使用list权限字段，无需重新配置
     "^/api/settings/.*search-columns$",  # 该路由使用list权限字段，无需重新配置
     "^/api/system/dashboard/",  # 忽略dashboard路由
     "^/api/system/captcha",  # 忽略图片验证码路由

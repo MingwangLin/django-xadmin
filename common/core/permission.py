@@ -108,7 +108,7 @@ class IsAuthenticated(BasePermission):
                     return True
             permission_data = get_user_permission(request.user, request.method)
             # 处理search-columns字段权限和list权限一致
-            match_group = re.match("(?P<url>.*)/search-columns$", url)
+            match_group = re.match("(?P<url>.*)/search-columns(-edit)?$", url)
             logger.info(f"permission_data: {permission_data}")
             logger.info(f"match_group: {match_group}")
             if match_group:
