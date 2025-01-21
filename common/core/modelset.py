@@ -464,7 +464,7 @@ class SearchColumnsAction(object):
                     'field_auth': field.field_auth,
                     'form_grid': float(field.form_grid) if field.form_grid else None,
                     'table_show': float(field.table_show) if field.table_show else None,
-                    'input_type': 'separation',  # Special type for separation fields
+                    'input_type': 'separator',  # Special type for separation fields
                     'required': False,
                     'read_only': False,
                     'write_only': False,
