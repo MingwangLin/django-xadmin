@@ -304,7 +304,7 @@ class SearchColumnsAction(object):
             }
         )
     )
-    @action(methods=['get'], detail=False, url_path='search-columns')
+    @action(methods=['get'], detail=False, url_path='search-columns-edit')
     def search_columns(self, request, *args, **kwargs):
         """获取{cls}的展示字段"""
         logger.info("Starting search_columns method")
@@ -432,7 +432,7 @@ class SearchColumnsAction(object):
             }
         )
     )
-    @action(methods=['get'], detail=False, url_path='search-columns-edit')
+    @action(methods=['get'], detail=False, url_path='search-columns')
     def search_columns_edit(self, request, *args, **kwargs):
         """获取{cls}的展示字段（包含分隔字段）"""
         # First get the base results from search_columns
