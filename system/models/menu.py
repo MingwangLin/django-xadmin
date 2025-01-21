@@ -16,6 +16,8 @@ class MenuMeta(DbAuditModel, DbUuidModel):
     icon = models.CharField(verbose_name=_("Left icon"), max_length=255, null=True, blank=True)
     r_svg_name = models.CharField(verbose_name=_("Right icon"), max_length=255, null=True, blank=True,
                                   help_text=_("Additional icon to the right of menu name"))
+    active_path = models.CharField(verbose_name=_("Active path"), max_length=255, null=True, blank=True,
+                                 help_text=_("Path pattern used for menu highlighting"))
     is_show_menu = models.BooleanField(verbose_name=_("Show menu"), default=True)
     is_show_parent = models.BooleanField(verbose_name=_("Show parent menu"), default=False)
     is_keepalive = models.BooleanField(verbose_name=_("Keepalive"), default=True,

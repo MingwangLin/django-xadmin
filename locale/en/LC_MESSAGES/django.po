@@ -2371,3 +2371,9 @@ msgstr "Total Exam Rooms"
 msgid "Online Exam Rooms"
 msgstr "Online Exam Rooms"
 
+msgid "Active path"
+msgstr "Active path"
+
+msgid "Path pattern used for menu highlighting"
+msgstr "Path pattern used for menu highlighting"
+

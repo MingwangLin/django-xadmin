@@ -2396,3 +2396,9 @@ msgstr "总考场数量"
 msgid "Online Exam Rooms"
 msgstr "在线考场数量"
 
+msgid "Active path"
+msgstr "菜单高亮"
+
+msgid "Path pattern used for menu highlighting"
+msgstr "用于菜单高亮"
+
