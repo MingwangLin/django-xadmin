@@ -374,7 +374,8 @@ class SearchColumnsAction(object):
                             'form_is_batch_edit': extension.form_is_batch_edit,
                             'form_placehold': extension.form_placehold,
                             'form_grid': extension.form_grid,
-                            'form_rules': extension.form_rules
+                            'form_rules': extension.form_rules,
+                            'field_sort_order': extension.field_sort_order,
                         })
                     except ModelLabelField.modellabelfieldextension.RelatedObjectDoesNotExist:
                         logger.warning(f"No extension found for ModelLabelField {model_field.pk}")
@@ -417,7 +418,7 @@ class SearchColumnsAction(object):
                             'write_only': build_basic_type(OpenApiTypes.BOOL),
                             'multiple': build_basic_type(OpenApiTypes.BOOL),
                             'max_length': build_basic_type(OpenApiTypes.NUMBER),
-                            'table_show': build_basic_type(OpenApiTypes.NUMBER),
+                            'field_sort_order': build_basic_type(OpenApiTypes.NUMBER),
                             'label_visible': build_basic_type(OpenApiTypes.BOOL),
                             'describe': build_basic_type(OpenApiTypes.STR),
                             'style': build_basic_type(OpenApiTypes.STR),
@@ -457,8 +458,7 @@ class SearchColumnsAction(object):
             from system.models.field import ModelSeparationField
             separation_fields = ModelSeparationField.objects.filter(
                 model_name=model_name
-            ).order_by('table_show')
-            
+            )
             # Add separation fields to results
             for field in separation_fields:
                 field_info = {
@@ -471,16 +471,16 @@ class SearchColumnsAction(object):
                     'label_color': field.label_color,
                     'field_auth': field.field_auth,
                     'form_grid': float(field.form_grid) if field.form_grid else None,
-                    'table_show': float(field.table_show) if field.table_show else None,
                     'input_type': 'separator',  # Special type for separation fields
                     'required': False,
                     'read_only': False,
                     'write_only': False,
+                    'field_sort_order': field.field_sort_order,
                 }
                 results.append(field_info)
                 
             # Sort results by table_show if available
-            results.sort(key=lambda x: (x.get('table_show', float('inf')) or float('inf')))
+            results.sort(key=lambda x: (x.get('field_sort_order', float('inf')) or float('inf')))
             
         return ApiResponse(data=results)
 
