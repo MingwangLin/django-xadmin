@@ -53,7 +53,14 @@ class SearchColumnsEditTests(APITransactionTestCase, URLPatternsTestCase):
     ]
 
     def setUp(self):
-        # Create the test table
+        # First ensure the test table doesn't exist
+        with connection.schema_editor() as schema_editor:
+            try:
+                schema_editor.delete_model(TestModel)
+            except:
+                pass  # Table might not exist yet, that's okay
+                
+        # Now create the test table
         with connection.schema_editor() as schema_editor:
             schema_editor.create_model(TestModel)
 
@@ -87,7 +94,8 @@ class SearchColumnsEditTests(APITransactionTestCase, URLPatternsTestCase):
             label_color='#FFFFFF',
             field_auth='auth1',
             form_grid=Decimal('12.00'),
-            table_show=Decimal('1.00')
+            field_sort_order=1,
+            field_read_only=False
         )
         
         self.separation_field2 = ModelSeparationField.objects.create(
@@ -101,7 +109,8 @@ class SearchColumnsEditTests(APITransactionTestCase, URLPatternsTestCase):
             label_color='#EEEEEE',
             field_auth='auth2',
             form_grid=Decimal('6.00'),
-            table_show=Decimal('2.00')
+            field_sort_order=2,
+            field_read_only=True
         )
 
     def tearDown(self):
@@ -145,23 +154,24 @@ class SearchColumnsEditTests(APITransactionTestCase, URLPatternsTestCase):
         self.assertEqual(section1['label_color'], '#FFFFFF')
         self.assertEqual(section1['field_auth'], 'auth1')
         self.assertEqual(section1['form_grid'], 12.00)
-        self.assertEqual(section1['table_show'], 1.00)
+        self.assertEqual(section1['field_sort_order'], 1)
+        self.assertEqual(section1['field_read_only'], False)
         self.assertEqual(section1['input_type'], 'separator')
         self.assertEqual(section1['required'], False)
         self.assertEqual(section1['read_only'], False)
         self.assertEqual(section1['write_only'], False)
 
     def test_ordering_by_table_show(self):
-        """Test if fields are properly ordered by table_show"""
+        """Test if fields are properly ordered by field_sort_order"""
         response = self.client.get(self.url)
         data = response.json()['data']
         
         # Get separation fields
         separation_fields = [f for f in data if f['input_type'] == 'separator']
         
-        # Check if they're ordered by table_show
-        self.assertEqual(separation_fields[0]['key'], 'section1')  # table_show = 1.00
-        self.assertEqual(separation_fields[1]['key'], 'section2')  # table_show = 2.00
+        # Check if they're ordered by field_sort_order
+        self.assertEqual(separation_fields[0]['key'], 'section1')  # field_sort_order = 1
+        self.assertEqual(separation_fields[1]['key'], 'section2')  # field_sort_order = 2
 
     def test_model_without_separation_fields(self):
         """Test behavior when model has no separation fields"""
@@ -182,7 +192,7 @@ class SearchColumnsEditTests(APITransactionTestCase, URLPatternsTestCase):
             model_name='invalid.model',
             name='invalid_section',
             label='Invalid Section',
-            table_show=Decimal('1.00')
+            field_sort_order=1
         )
         
         response = self.client.get(self.url)
@@ -200,7 +210,7 @@ class SearchColumnsEditTests(APITransactionTestCase, URLPatternsTestCase):
             name='null_section',
             label='Null Section',
             form_grid=None,
-            table_show=None
+            field_sort_order=1
         )
         
         response = self.client.get(self.url)
@@ -211,4 +221,3 @@ class SearchColumnsEditTests(APITransactionTestCase, URLPatternsTestCase):
         
         # Check null values are handled properly
         self.assertIsNone(null_section['form_grid'])
-        self.assertIsNone(null_section['table_show']) 
