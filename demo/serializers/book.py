@@ -112,12 +112,9 @@ class ReceivingSerializer(BaseModelSerializer):
         model = models.Receiving
         fields = [
             'pk', 'status', 'confirm_time', 'type', 'receiving_warehouse_name',
-            'receiving_warehouse_code', 'external_code', 'created_time', 'updated_time', 'items', 'creator'
+            'receiving_warehouse_code', 'external_code', 'created_time', 'updated_time', 'creator','items', 
         ]
-        table_fields = [
-            'pk', 'type', 'status', 'receiving_warehouse_name', 'receiving_warehouse_code',
-            'confirm_time', 'external_code'
-        ]
+        table_fields = fields
         extra_kwargs = {
             'pk': {'read_only': True},
             'confirm_time': {'read_only': True},
