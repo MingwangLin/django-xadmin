@@ -84,10 +84,10 @@ class ModelSeparationField(DbAuditModel, DbUuidModel):
     label_color = models.CharField(verbose_name=_("标题配色"), max_length=32, null=True, blank=True)
     field_auth = models.CharField(verbose_name=_("字段权限"), max_length=128, null=True, blank=True)
     form_grid = models.DecimalField(verbose_name=_("字段宽度"), max_digits=5, decimal_places=2, null=True, blank=True)
-    table_show = models.DecimalField(verbose_name=_("显示排序"), max_digits=5, decimal_places=2, null=True, blank=True)
+    field_sort_order = models.IntegerField(default=1, verbose_name=_("排序"))
 
     class Meta:
-        ordering = ('table_show',)
+        ordering = ('-created_time',)
         unique_together = ('model_name', 'name')
         verbose_name = _("Model separation field")
         verbose_name_plural = verbose_name
