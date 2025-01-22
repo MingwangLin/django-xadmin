@@ -62,6 +62,7 @@ class ModelLabelFieldExtension(DbAuditModel, DbUuidModel):
     form_placehold = models.CharField(max_length=128, null=True, blank=True, verbose_name="表单占位符")
     form_grid = models.IntegerField(null=True, blank=True, verbose_name="表单栅格")
     form_rules = models.CharField(max_length=256, null=True, blank=True, verbose_name="表单校验规则")
+    field_sort_order = models.IntegerField(default=1, verbose_name="排序")
 
     class Meta:
         ordering = ('-created_time',)
