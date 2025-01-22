@@ -135,6 +135,7 @@ class ReceivingViewSet(ReceivingSearchColumnsMixin, BaseModelSet):
     )
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
+        """查询入库单"""
         return self.list(request, *args, **kwargs)
 
     @action(methods=['post'], detail=True)
