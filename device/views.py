@@ -92,6 +92,7 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     )
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
+        """查询设备"""
         return self.list(request, *args, **kwargs)
 
     @action(methods=['POST'], detail=True)

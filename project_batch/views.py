@@ -84,4 +84,5 @@ class ProjectBatchViewSet(BaseModelSet, ImportExportDataAction):
     )
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
+        """查询项目批次"""
         return self.list(request, *args, **kwargs)
