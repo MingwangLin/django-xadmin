@@ -105,8 +105,11 @@ class ReceivingItemSerializer(BaseModelSerializer):
 
 
 class ReceivingSerializer(BaseModelSerializer):
-    items = ReceivingItemSerializer(many=True, label=_("入库单明细"))
+    items = input_wrapper(serializers.SerializerMethodField)(read_only=True, input_type='m2m_related_field',
+                                                             label=_("入库单明细"))
 
+    def get_items(self, obj):
+        return ReceivingItemSerializer(many=True).to_representation(obj.items.all())
     
     class Meta:
         model = models.Receiving
@@ -121,7 +124,7 @@ class ReceivingSerializer(BaseModelSerializer):
             'creator': {
                 'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
                 'input_type': 'api-search-user'
-            },
+            },      
         }
 
 
