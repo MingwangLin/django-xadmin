@@ -17,8 +17,8 @@ from common.base.magic import MagicCacheData
 from server.utils import get_current_request, set_current_request
 from system.models import Menu, FieldPermission
 
-import logging
-logger = logging.getLogger(__name__)
+from common.utils import get_logger
+logger = get_logger(__name__)
 
 def get_user_menu_queryset(user_obj):
     q = Q()
@@ -49,6 +49,7 @@ def get_user_field_queryset(user_obj, menu):
     if has_q:
         # queryset = get_filter_queryset(FieldPermission.objects.filter(q), user_obj).filter(menu=menu)
         queryset = FieldPermission.objects.filter(q).filter(menu=menu)  # 用户查询用户权限，无需使用权限过滤
+        logger.info(f"queryset: {queryset.query}")
         for val in queryset.values_list('field__parent__name', 'field__name').distinct():
             info = data.get(val[0], set())
             if info:
@@ -102,17 +103,19 @@ class IsAuthenticated(BasePermission):
                 request.ignore_field_permission = True
                 return True
             url = request.path_info
+            logger.info(f"url: {url}")
             for w_url, method in settings.PERMISSION_WHITE_URL.items():
                 if re.match(w_url, url) and ('*' in method or request.method in method):
                     request.ignore_field_permission = True
                     return True
             permission_data = get_user_permission(request.user, request.method)
+            logger.info(f"permission_data: {permission_data}")
             # 处理search-columns字段权限和list权限一致
             match_group = re.match("(?P<url>.*)/search-columns(-edit)?$", url)
-            logger.info(f"permission_data: {permission_data}")
             logger.info(f"match_group: {match_group}")
             if match_group:
                 url = match_group.group('url')
+                logger.info(f"match_group.url: {url}")
             p_data = p_data_new = get_menu_pk(permission_data, url)
             logger.info(f"p_data: {p_data}")
             if p_data:
