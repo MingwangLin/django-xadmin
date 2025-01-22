@@ -376,6 +376,7 @@ class SearchColumnsAction(object):
                             'form_grid': extension.form_grid,
                             'form_rules': extension.form_rules,
                             'field_sort_order': extension.field_sort_order,
+                            'field_read_only': extension.field_read_only,
                         })
                     except ModelLabelField.modellabelfieldextension.RelatedObjectDoesNotExist:
                         logger.warning(f"No extension found for ModelLabelField {model_field.pk}")
@@ -419,6 +420,7 @@ class SearchColumnsAction(object):
                             'multiple': build_basic_type(OpenApiTypes.BOOL),
                             'max_length': build_basic_type(OpenApiTypes.NUMBER),
                             'field_sort_order': build_basic_type(OpenApiTypes.NUMBER),
+                            'field_read_only': build_basic_type(OpenApiTypes.BOOL),
                             'label_visible': build_basic_type(OpenApiTypes.BOOL),
                             'describe': build_basic_type(OpenApiTypes.STR),
                             'style': build_basic_type(OpenApiTypes.STR),
@@ -476,6 +478,7 @@ class SearchColumnsAction(object):
                     'read_only': False,
                     'write_only': False,
                     'field_sort_order': field.field_sort_order,
+                    'field_read_only': field.field_read_only,
                 }
                 results.append(field_info)
                 
