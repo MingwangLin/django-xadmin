@@ -21,7 +21,7 @@ class RouteMetaSerializer(ModelSerializer):
         model = MenuMeta
         fields = [
             'title', 'icon', 'showParent', 'showLink', 'extraIcon', 'keepAlive', 'frameSrc', 'frameLoading',
-            'transition', 'hiddenTag', 'dynamicLevel', 'fixedTag'
+            'transition', 'hiddenTag', 'dynamicLevel', 'fixedTag', 'active_path'
         ]
 
     showParent = serializers.BooleanField(source='is_show_parent', read_only=True, label=_("Show parent menu"))
