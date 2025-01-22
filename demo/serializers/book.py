@@ -9,6 +9,7 @@ from rest_framework import serializers
 from common.core.serializers import BaseModelSerializer
 from common.fields.utils import input_wrapper
 from demo import models
+from django.utils.translation import gettext_lazy as _
 
 
 class BookSerializer(BaseModelSerializer):
@@ -83,7 +84,29 @@ class BookSerializer(BaseModelSerializer):
         return obj.is_active
 
 
+class ReceivingItemSerializer(BaseModelSerializer):
+    class Meta:
+            model = models.ReceivingItem
+            fields = [
+                'pk', 'receiving', 'arrival_quantity', 'defect_quantity',
+                'external_key', 'created_time', 'updated_time'
+            ]
+            table_fields = [
+                'pk', 'receiving', 'arrival_quantity', 'defect_quantity', 'external_key'
+            ]
+            extra_kwargs = {
+                'pk': {'read_only': True},
+                'receiving': {
+                    'attrs': ['pk', 'receiving_warehouse_name'],
+                    'required': True,
+                    'format': "{receiving_warehouse_name}({pk})"
+                }
+            }
+
+
 class ReceivingSerializer(BaseModelSerializer):
+    items = ReceivingItemSerializer(many=True, label=_("入库单明细"))
+
     
     class Meta:
         model = models.Receiving
@@ -102,27 +125,7 @@ class ReceivingSerializer(BaseModelSerializer):
                 'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
                 'input_type': 'api-search-user'
             },
-            'items': {
-                'label': '入库单明细',
-            }
         }
 
 
-class ReceivingItemSerializer(BaseModelSerializer):
-    class Meta:
-        model = models.ReceivingItem
-        fields = [
-            'pk', 'receiving', 'arrival_quantity', 'defect_quantity',
-            'external_key', 'created_time', 'updated_time'
-        ]
-        table_fields = [
-            'pk', 'receiving', 'arrival_quantity', 'defect_quantity', 'external_key'
-        ]
-        extra_kwargs = {
-            'pk': {'read_only': True},
-            'receiving': {
-                'attrs': ['pk', 'receiving_warehouse_name'],
-                'required': True,
-                'format': "{receiving_warehouse_name}({pk})"
-            }
-        }
+    

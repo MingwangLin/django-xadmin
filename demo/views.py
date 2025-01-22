@@ -4,7 +4,7 @@
 from django_filters import rest_framework as filters
 from rest_framework.decorators import action
 from django.utils import timezone
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, build_array_type, build_basic_type
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
 from common.core.filter import BaseFilterSet
 from common.core.modelset import BaseModelSet, ImportExportDataAction, SearchColumnsAction
@@ -15,6 +15,7 @@ from demo.models import Book, Receiving, ReceivingItem
 from demo.serializers.book import BookSerializer
 from demo.serializers.book import ReceivingSerializer, ReceivingItemSerializer
 from common.core.queryset_helper import QuerysetHelper
+from drf_spectacular.plumbing import build_array_type, build_basic_type
 
 logger = get_logger(__name__)
 
