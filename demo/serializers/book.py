@@ -122,8 +122,9 @@ class ReceivingSerializer(BaseModelSerializer):
             'pk': {'read_only': True},
             'confirm_time': {'read_only': True},
             'creator': {
-                'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
-                'input_type': 'api-search-user'
+                'attrs': ['pk', 'username'], 'required': False, 'format': "{username}({pk})",
+                'input_type': 'api-search-user',
+                'read_only': True
             },      
         }
 
