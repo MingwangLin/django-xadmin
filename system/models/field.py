@@ -63,6 +63,7 @@ class ModelLabelFieldExtension(DbAuditModel, DbUuidModel):
     form_grid = models.IntegerField(null=True, blank=True, verbose_name="表单栅格")
     form_rules = models.CharField(max_length=256, null=True, blank=True, verbose_name="表单校验规则")
     field_sort_order = models.IntegerField(default=1, verbose_name="排序")
+    field_read_only = models.BooleanField(default=False, verbose_name=_("字段是否只读"))
 
     class Meta:
         ordering = ('-created_time',)
@@ -85,6 +86,7 @@ class ModelSeparationField(DbAuditModel, DbUuidModel):
     field_auth = models.CharField(verbose_name=_("字段权限"), max_length=128, null=True, blank=True)
     form_grid = models.DecimalField(verbose_name=_("字段宽度"), max_digits=5, decimal_places=2, null=True, blank=True)
     field_sort_order = models.IntegerField(default=1, verbose_name=_("排序"))
+    field_read_only = models.BooleanField(default=False, verbose_name=_("字段是否只读"))
 
     class Meta:
         ordering = ('-created_time',)
