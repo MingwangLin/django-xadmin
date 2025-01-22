@@ -4,6 +4,7 @@
 from django_filters import rest_framework as filters
 from rest_framework.decorators import action
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, build_array_type, build_basic_type
 
 from common.core.filter import BaseFilterSet
 from common.core.modelset import BaseModelSet, ImportExportDataAction, SearchColumnsAction
@@ -13,6 +14,7 @@ from common.utils import get_logger
 from demo.models import Book, Receiving, ReceivingItem
 from demo.serializers.book import BookSerializer
 from demo.serializers.book import ReceivingSerializer, ReceivingItemSerializer
+from common.core.queryset_helper import QuerysetHelper
 
 logger = get_logger(__name__)
 
@@ -97,6 +99,42 @@ class ReceivingViewSet(ReceivingSearchColumnsMixin, BaseModelSet):
     ordering_fields = ['created_time']
     filterset_class = ReceivingViewSetFilter
     pagination_class = DynamicPageNumber(1000)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        request_data = self.request.data
+
+        if type(request_data) == dict:
+            queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
+            queryset = QuerysetHelper.get_general_sort_keys_filtered_queryset(request_data.get('sortkeys'), queryset, queryset.model)
+            queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filterset_class.get_fields().keys())
+        return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='filter',
+                type=OpenApiTypes.OBJECT,
+                description='Complex filter object with format: {"rel": "and|or", "cond": [{"field": "field_name", "method": "exact|contains|in|etc", "value": "value", "type": "text|datetime|etc"}]}',
+                required=False
+            ),
+            OpenApiParameter(
+                name='sortkeys',
+                type=build_array_type(build_basic_type(OpenApiTypes.STR)),
+                description='List of fields to sort by. Prefix with "-" for descending order. Example: ["-created_time", "name"]',
+                required=False
+            ),
+            OpenApiParameter(
+                name='searchtext',
+                type=OpenApiTypes.STR,
+                description='Text to search across multiple fields defined in filter_fields',
+                required=False
+            ),
+        ]
+    )
+    @action(methods=['POST'], detail=False)
+    def query(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     @action(methods=['post'], detail=True)
     def confirm(self, request, *args, **kwargs):

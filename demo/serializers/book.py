@@ -98,12 +98,6 @@ class ReceivingSerializer(BaseModelSerializer):
         extra_kwargs = {
             'pk': {'read_only': True},
             'confirm_time': {'read_only': True},
-            'status': {
-                'required': True,
-            },
-            'type': {
-                'required': True,
-            },
             'creator': {
                 'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
                 'input_type': 'api-search-user'
@@ -112,10 +106,6 @@ class ReceivingSerializer(BaseModelSerializer):
                 'label': '入库单明细',
             }
         }
-
-    # Use LabeledChoiceField for choice fields
-    status = serializers.ChoiceField(choices=models.Receiving.StatusChoices.choices, required=True)
-    type = serializers.ChoiceField(choices=models.Receiving.TypeChoices.choices, required=True)
 
 
 class ReceivingItemSerializer(BaseModelSerializer):

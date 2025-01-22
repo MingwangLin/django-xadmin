@@ -57,7 +57,6 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction):
     ordering_fields = ['created_time']
     filterset_class = DeviceViewSetFilter
     pagination_class = DynamicPageNumber(1000)
-    model = Device
 
     def get_queryset(self):
         queryset = super().get_queryset()
