@@ -339,6 +339,7 @@ class SearchColumnsAction(object):
         metadata_class = self.metadata_class()
         serializer = self.get_serializer()
         fields = getattr(serializer, 'fields', [])
+        logger.info(f"search_columns.fields: {fields}")
         meta = getattr(serializer, 'Meta', {})
         table_fields = getattr(meta, 'table_fields', [])
         for key, value in fields.items():
