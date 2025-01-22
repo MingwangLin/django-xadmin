@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from django.utils import timezone
 
 from common.core.filter import BaseFilterSet
-from common.core.modelset import BaseModelSet, ImportExportDataAction
+from common.core.modelset import BaseModelSet, ImportExportDataAction, SearchColumnsAction
 from common.core.pagination import DynamicPageNumber
 from common.core.response import ApiResponse
 from common.utils import get_logger
@@ -46,7 +46,7 @@ class BookViewSet(BaseModelSet, ImportExportDataAction):
         return ApiResponse(detail=f"{instance.name} 推送成功")
 
 
-class ReceivingSearchColumnsMixin:
+class ReceivingSearchColumnsMixin(SearchColumnsAction):
     """Custom mixin to add subitems to search-columns response for Receiving"""
     
     def get_subitems_info(self):

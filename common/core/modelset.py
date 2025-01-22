@@ -320,12 +320,20 @@ class SearchColumnsAction(object):
                 info['multiple'] = True
                 setattr(value.child_relation, 'is_column', True)
                 tp = value.child_relation.input_type if value.child_relation.input_type else info['type']
+                if tp and tp.endswith('related_field'):
+                    setattr(value.child_relation, 'is_column', True)
+                    try:
+                        info['choices'] = value.child_relation.get_choices()
+                    except Exception as e:
+                        info['choices'] = []
             else:
                 tp = info['type']
-            if tp and tp.endswith('related_field'):
-                setattr(value, 'is_column', True)
-                info['choices'] = json.loads(json.dumps(value.choices, cls=encoders.JSONEncoder))
-                # info['choices'] = [{'value': k, 'label': v} for k, v in value.choices.items()]
+                if tp and tp.endswith('related_field'):
+                    setattr(value, 'is_column', True)
+                    try:
+                        info['choices'] = value.get_choices()
+                    except Exception as e:
+                        info['choices'] = []
             return tp
 
         metadata_class = self.metadata_class()
