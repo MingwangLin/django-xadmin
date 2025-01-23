@@ -1,13 +1,23 @@
 from datetime import timedelta, datetime
-from django.db.models import Q
+from django.db.models import Q, F, Case, When, Value, IntegerField, Func, TextField
+from django.db.models.functions import Concat, Cast
 from django.utils import timezone
 from common.core.json_helper import JsonHelper
 from common.core.orm_helper import Convert
 from common.core.str_helper import StrHelper
 from common.core.time_helper import TimeHelper
-import logging
+from common.utils import get_logger
+logger = get_logger(__name__)
 
-logger = logging.getLogger(__name__)
+
+class GBKConversion(Func):
+    """
+    Custom database function to convert string to GBK encoding for sorting.
+    This uses PostgreSQL's convert_to function to handle GBK encoding.
+    """
+    function = 'CONVERT_TO'
+    template = "%(function)s(%(expressions)s, 'GBK')"
+
 
 class QuerysetHelper:
     """
@@ -162,17 +172,33 @@ class QuerysetHelper:
         return queryset.filter(combined_q)
 
     @classmethod
-    def get_general_sort_keys_filtered_queryset(cls, sortKeys, queryset, model):
+    def _get_gbk_order(cls, field_name):
+        """
+        Helper method to create a GBK encoding expression for sorting.
+        Uses PostgreSQL's convert_to function to convert text to GBK encoding.
+        
+        Args:
+            field_name (str): The name of the field to sort by GBK encoding
+            
+        Returns:
+            Expression that converts the field to GBK encoding for sorting
+        """
+        return GBKConversion(F(field_name))
+
+    @classmethod
+    def get_general_sort_keys_filtered_queryset(cls, sortkeys, queryset, model, use_gbk=True):
         """
         Applies sorting to a queryset based on provided sort keys, handling nested model relationships.
+        Supports GBK encoding sorting for Chinese characters.
 
         Args:
-            sortKeys (list): List of strings representing sort fields. Each key can be:
+            sortkeys (list): List of strings representing sort fields. Each key can be:
                            - Prefixed with '-' for descending order
                            - Use dot notation for nested relationships
                            - Use Django's double underscore notation
             queryset (QuerySet): The Django queryset to sort
             model (Model): The Django model class associated with the queryset
+            use_gbk (bool): Whether to use GBK encoding for sorting (default: False)
 
         Returns:
             QuerySet: A new queryset ordered by the specified sort keys
@@ -182,13 +208,13 @@ class QuerysetHelper:
 
         Example:
             sortKeys = ['name', '-created_at', 'department.name']
-            sorted_queryset = get_general_sort_keys_filtered_queryset(sortKeys, queryset, User)
+            sorted_queryset = get_general_sort_keys_filtered_queryset(sortKeys, queryset, User, use_gbk=True)
         """
-        sortKeys = sortKeys or list()
-        sortKeys = StrHelper.get_dot_transformed_list(sortKeys)
+        sortkeys = sortkeys or list()
+        sortkeys = StrHelper.get_dot_transformed_list(sortkeys)
         processed_sort_keys = []
 
-        for key in sortKeys:
+        for key in sortkeys:
             descending = '-' in key
             field_path = key.lstrip('-')  # Remove leading '-' if present for descending order
             field_parts = field_path.split('__')
@@ -202,13 +228,30 @@ class QuerysetHelper:
                 else:
                     raise ValueError(f"No related model found for field '{part}' in model '{current_model.__name__}'.")
 
+            # If GBK sorting is enabled and the field is a character field
+            if use_gbk:
+                field = current_model._meta.get_field(field_parts[-1])
+                if field.get_internal_type() in ['CharField', 'TextField']:
+                    # Create a GBK ordering annotation
+                    annotation_name = f"{field_path}_gbk_order"
+                    queryset = queryset.annotate(**{annotation_name: cls._get_gbk_order(field_path)})
+                    if descending:
+                        processed_sort_keys.append(f"-{annotation_name}")
+                    else:
+                        processed_sort_keys.append(annotation_name)
+                    continue
+
+            # For non-GBK sorting or non-character fields
             if descending:
                 processed_sort_keys.append('-' + field_path)
             else:
                 processed_sort_keys.append(field_path)
 
-        # Order the queryset based on processed sortKeys
+        # Order the queryset based on processed sortkeys
         queryset = queryset.order_by(*processed_sort_keys)
+        logger.info(f"processed_sort_keys: {processed_sort_keys}")
+        logger.info(f"queryset: {queryset}")
+        logger.info(f"queryset.query: {queryset.query}")
         return queryset
 
     @classmethod
