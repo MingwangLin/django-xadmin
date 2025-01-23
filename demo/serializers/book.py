@@ -10,8 +10,9 @@ from common.core.serializers import BaseModelSerializer
 from common.fields.utils import input_wrapper
 from demo import models
 from django.utils.translation import gettext_lazy as _
+from common.utils import get_logger
 
-
+logger = get_logger(__name__)
 class BookSerializer(BaseModelSerializer):
     class Meta:
         model = models.Book
@@ -85,31 +86,30 @@ class BookSerializer(BaseModelSerializer):
 
 
 class ReceivingItemSerializer(BaseModelSerializer):
+    def to_internal_value(self, data):
+        if isinstance(data, dict):
+            # Preserve the pk if it exists
+            internal_value = super().to_internal_value(data)
+            if 'pk' in data:
+                internal_value['pk'] = data['pk']
+            return internal_value
+        return super().to_internal_value(data)
+    
+    
     class Meta:
             model = models.ReceivingItem
             fields = [
-                'pk', 'receiving', 'arrival_quantity', 'defect_quantity',
+                'pk', 'arrival_quantity', 'defect_quantity',
                 'external_key', 'created_time', 'updated_time'
             ]
-            table_fields = [
-                'pk', 'receiving', 'arrival_quantity', 'defect_quantity', 'external_key'
-            ]
+            table_fields = fields
             extra_kwargs = {
-                'pk': {'read_only': True},
-                'receiving': {
-                    'attrs': ['pk', 'receiving_warehouse_name'],
-                    'required': True,
-                    'format': "{receiving_warehouse_name}({pk})"
-                }
+                'pk': {'read_only': False, 'required': False},
             }
 
 
 class ReceivingSerializer(BaseModelSerializer):
-    items = input_wrapper(serializers.SerializerMethodField)(read_only=True, input_type='m2m_related_field',
-                                                             label=_("入库单明细"))
-
-    def get_items(self, obj):
-        return ReceivingItemSerializer(many=True).to_representation(obj.items.all())
+    items = ReceivingItemSerializer(many=True)
     
     class Meta:
         model = models.Receiving
@@ -127,6 +127,74 @@ class ReceivingSerializer(BaseModelSerializer):
                 'read_only': True
             },      
         }
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items', [])
+        receiving = models.Receiving.objects.create(**validated_data)
+        
+        for item_data in items_data:
+            if 'receiving' in item_data:
+                del item_data['receiving']
+            models.ReceivingItem.objects.create(receiving=receiving, **item_data)
+            
+        return receiving
+
+    def update(self, instance, validated_data):
+       
+        logger.info(f"Validated data before cleaning: {validated_data}")
+        
+        # Clean up validated_data
+        if 'status' in validated_data and isinstance(validated_data['status'], dict):
+            validated_data['status'] = validated_data['status'].get('value')
+            logger.info(f"Cleaned status: {validated_data['status']}")
+        if 'type' in validated_data and isinstance(validated_data['type'], dict):
+            validated_data['type'] = validated_data['type'].get('value')
+            logger.info(f"Cleaned type: {validated_data['type']}")
+            
+        items_data = validated_data.pop('items', [])
+        logger.info(f"Items data: {items_data}")
+        
+        # Update receiving instance
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # Update or create items
+        existing_items = {str(item.pk): item for item in instance.items.all()}
+        logger.info(f"Existing items: {existing_items.keys()}")
+        
+        # Create or update items
+        for item_data in items_data:
+            logger.info(f"Processing item data: {item_data}")
+            # Clean up item data
+            if 'receiving' in item_data:
+                del item_data['receiving']
+                
+            item_id = str(item_data.get('pk'))
+            logger.info(f"Item ID: {item_id}")
+            
+            if item_id and item_id in existing_items:
+                logger.info(f"Updating existing item {item_id}")
+                # Update existing item
+                item = existing_items[item_id]
+                update_fields = ['arrival_quantity', 'defect_quantity', 'external_key']
+                for field in update_fields:
+                    if field in item_data:
+                        old_value = getattr(item, field)
+                        setattr(item, field, item_data[field])
+                        logger.info(f"Updated {field} from {old_value} to {item_data[field]}")
+                item.save()
+            else:
+                logger.info(f"Creating new item")
+                # Create new item
+                clean_data = {
+                    'arrival_quantity': item_data.get('arrival_quantity'),
+                    'defect_quantity': item_data.get('defect_quantity'),
+                    'external_key': item_data.get('external_key')
+                }
+                models.ReceivingItem.objects.create(receiving=instance, **clean_data)
+        
+        return instance
 
 
     
