@@ -109,13 +109,13 @@ class ReceivingItemSerializer(BaseModelSerializer):
 
 
 class ReceivingSerializer(BaseModelSerializer):
-    items = ReceivingItemSerializer(many=True)
+    items = ReceivingItemSerializer(many=True, label='入库单明细')
     
     class Meta:
         model = models.Receiving
         fields = [
             'pk', 'status', 'confirm_time', 'type', 'receiving_warehouse_name',
-            'receiving_warehouse_code', 'external_code', 'created_time', 'updated_time', 'creator','items', 
+            'receiving_warehouse_code', 'external_code', 'created_time', 'updated_time', 'creator', 'items', 
         ]
         table_fields = fields
         extra_kwargs = {
@@ -140,59 +140,36 @@ class ReceivingSerializer(BaseModelSerializer):
         return receiving
 
     def update(self, instance, validated_data):
-       
-        logger.info(f"Validated data before cleaning: {validated_data}")
-        
-        # Clean up validated_data
-        if 'status' in validated_data and isinstance(validated_data['status'], dict):
-            validated_data['status'] = validated_data['status'].get('value')
-            logger.info(f"Cleaned status: {validated_data['status']}")
-        if 'type' in validated_data and isinstance(validated_data['type'], dict):
-            validated_data['type'] = validated_data['type'].get('value')
-            logger.info(f"Cleaned type: {validated_data['type']}")
-            
         items_data = validated_data.pop('items', [])
-        logger.info(f"Items data: {items_data}")
         
-        # Update receiving instance
+        # Update receiving instance fields
         for attr, value in validated_data.items():
+            if isinstance(value, dict) and 'value' in value:
+                value = value['value']
             setattr(instance, attr, value)
         instance.save()
         
         # Update or create items
         existing_items = {str(item.pk): item for item in instance.items.all()}
-        logger.info(f"Existing items: {existing_items.keys()}")
         
         # Create or update items
         for item_data in items_data:
-            logger.info(f"Processing item data: {item_data}")
-            # Clean up item data
             if 'receiving' in item_data:
                 del item_data['receiving']
                 
             item_id = str(item_data.get('pk'))
-            logger.info(f"Item ID: {item_id}")
             
             if item_id and item_id in existing_items:
-                logger.info(f"Updating existing item {item_id}")
                 # Update existing item
                 item = existing_items[item_id]
                 update_fields = ['arrival_quantity', 'defect_quantity', 'external_key']
                 for field in update_fields:
                     if field in item_data:
-                        old_value = getattr(item, field)
                         setattr(item, field, item_data[field])
-                        logger.info(f"Updated {field} from {old_value} to {item_data[field]}")
                 item.save()
             else:
-                logger.info(f"Creating new item")
                 # Create new item
-                clean_data = {
-                    'arrival_quantity': item_data.get('arrival_quantity'),
-                    'defect_quantity': item_data.get('defect_quantity'),
-                    'external_key': item_data.get('external_key')
-                }
-                models.ReceivingItem.objects.create(receiving=instance, **clean_data)
+                models.ReceivingItem.objects.create(receiving=instance, **item_data)
         
         return instance
 

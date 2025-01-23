@@ -396,6 +396,8 @@ class SearchColumnsAction(object):
                 info['input_type'] = 'textarea'
             else:
                 info['input_type'] = get_input_type(value, info)
+                if key == 'items':
+                    info['input_type'] = 'm2m_related_field'
             del info['type']
             if not table_fields:
                 info['table_show'] = 1
