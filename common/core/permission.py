@@ -61,6 +61,28 @@ def get_user_field_queryset(user_obj, menu):
 
 @MagicCacheData.make_cache(timeout=3600 * 24, key_func=lambda x, y: f"{x.pk}_{y}")
 def get_user_permission(user_obj, method):
+    """
+    Retrieves a user's menu permissions based on their role and request method.
+    
+    This function fetches all permission-type menu entries that the user has access to,
+    filtered by the specified HTTP method. The results are cached for 24 hours using
+    the user's primary key and method as the cache key.
+    
+    Args:
+        user_obj: The user object to check permissions for
+        method: The HTTP method (e.g., GET, POST, PUT, DELETE) to filter permissions by
+        
+    Returns:
+        dict: A dictionary mapping menu paths to tuples of (menu_pk, model), where:
+            - key: The menu path (str)
+            - value: A tuple containing (menu_pk, model) where menu_pk is the primary key
+                    of the menu and model is the associated model name
+                    
+    Example:
+        >>> permissions = get_user_permission(user, 'GET')
+        >>> # Returns something like:
+        >>> # {'api/users': (1, 'User'), 'api/roles': (2, 'Role')}
+    """
     menus = []
     menu_queryset = get_user_menu_queryset(user_obj)
     if menu_queryset:
@@ -79,13 +101,60 @@ def get_import_export_permission(permission_data, url):
 
 
 def get_menu_pk(permission_data, url):
+    """
+    Retrieves menu permission data by matching a URL path against permission patterns.
+    
+    This function attempts to find matching permission data in two ways:
+    1. First tries an exact match by appending '$' to the URL (excluding leading slash)
+    2. If no exact match is found, tries regex matching against all permission paths
+    
+    Args:
+        permission_data (dict): Dictionary mapping permission paths to permission data tuples
+        url (str): The URL path to check permissions for (starts with '/')
+        
+    Returns:
+        tuple or None: Permission data tuple (menu_pk, model) if a match is found,
+                      None if no matching permission is found
+                      
+    Example:
+        >>> perms = {'api/users$': (1, 'User'), 'api/roles': (2, 'Role')}
+        >>> get_menu_pk(perms, '/api/users')
+        (1, 'User')
+    """
     # 1.直接get api/system/permission$   /api/system/config/system
     p_data = permission_data.get(f"{url[1:]}$")
+    logger.info(f"get_menu_pk.url: {url[1:]}$")
+    logger.info(f"get_menu_pk.p_data: {p_data}")
     if not p_data:
         for p_path, p_data in permission_data.items():
+            logger.info(f"get_menu_pk.p_path: {p_path}")
             if re.match(f"/{p_path}", url):
                 return p_data
     return p_data
+
+
+def get_menu_pk_without_params(permission_data, url):
+    """
+    Retrieves menu permission data by matching a URL path against permission patterns,
+    ignoring any URL parameters in the permission paths.
+    
+    Args:
+        permission_data (dict): Dictionary mapping permission paths to permission data tuples
+        url (str): The URL path to check permissions for (starts with '/')
+        
+    Returns:
+        tuple or None: Permission data tuple (menu_pk, model) if a match is found,
+                      None if no matching permission is found
+    """
+    url_without_slash = url[1:] if url.startswith('/') else url
+    for p_path, p_data in permission_data.items():
+        # Remove URL parameters pattern from permission path
+        clean_path = re.sub(r'/\(\?P<[^>]+>[^)]+\)', '', p_path)
+        # Remove trailing $ if exists
+        clean_path = clean_path.rstrip('$')
+        if clean_path == url_without_slash:
+            return p_data
+    return None
 
 
 class IsAuthenticated(BasePermission):
@@ -108,15 +177,21 @@ class IsAuthenticated(BasePermission):
                 if re.match(w_url, url) and ('*' in method or request.method in method):
                     request.ignore_field_permission = True
                     return True
-            permission_data = get_user_permission(request.user, request.method)
-            logger.info(f"permission_data: {permission_data}")
-            # 处理search-columns字段权限和list权限一致
-            match_group = re.match("(?P<url>.*)/search-columns(-edit)?$", url)
-            logger.info(f"match_group: {match_group}")
+            
+            # Handle search-columns-edit URLs
+            match_group = re.match("(?P<url>.*)/search-columns-edit$", url)
             if match_group:
                 url = match_group.group('url')
-                logger.info(f"match_group.url: {url}")
-            p_data = p_data_new = get_menu_pk(permission_data, url)
+                permission_data = get_user_permission(request.user, 'PATCH')
+                p_data = p_data_new = get_menu_pk_without_params(permission_data, url)
+            else:
+                permission_data = get_user_permission(request.user, request.method)
+                # Handle search-columns URLs
+                match_group = re.match("(?P<url>.*)/search-columns$", url)
+                if match_group:
+                    url = match_group.group('url')
+                p_data = p_data_new = get_menu_pk(permission_data, url)
+            
             logger.info(f"p_data: {p_data}")
             if p_data:
                 # 导入导出功能，若未绑定模型，则使用list, create菜单
