@@ -180,18 +180,24 @@ class IsAuthenticated(BasePermission):
             
             # Handle search-columns-edit URLs
             match_group = re.match("(?P<url>.*)/search-columns-edit$", url)
+            logger.info(f"match_group: {match_group}")
             if match_group:
+                logger.info(f"match_group: true")
                 url = match_group.group('url')
+                logger.info(f"url: {url}")
                 permission_data = get_user_permission(request.user, 'PATCH')
+                logger.info(f"permission_data: {permission_data}")
                 p_data = p_data_new = get_menu_pk_without_params(permission_data, url)
             else:
+                logger.info(f"match_group: false")
                 permission_data = get_user_permission(request.user, request.method)
+                logger.info(f"permission_data: {permission_data}")
                 # Handle search-columns URLs
                 match_group = re.match("(?P<url>.*)/search-columns$", url)
                 if match_group:
                     url = match_group.group('url')
+                    logger.info(f"url: {url}")
                 p_data = p_data_new = get_menu_pk(permission_data, url)
-            
             logger.info(f"p_data: {p_data}")
             if p_data:
                 # 导入导出功能，若未绑定模型，则使用list, create菜单
