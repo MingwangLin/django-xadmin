@@ -2402,3 +2402,67 @@ msgstr "菜单高亮"
 msgid "Path pattern used for menu highlighting"
 msgstr "用于菜单高亮"
 
+#: region/models.py
+msgid "Country"
+msgstr "国家"
+
+#: region/models.py
+msgid "Province"
+msgstr "省份"
+
+#: region/models.py
+msgid "City"
+msgstr "城市"
+
+#: region/models.py
+msgid "District"
+msgstr "区县"
+
+#: region/models.py
+msgid "Enabled"
+msgstr "启用"
+
+#: region/models.py
+msgid "Disabled"
+msgstr "禁用"
+
+#: region/models.py
+msgid "Region Code"
+msgstr "区域代码"
+
+#: region/models.py
+msgid "Region Name"
+msgstr "区域名称"
+
+#: region/models.py
+msgid "Full Name"
+msgstr "完整名称"
+
+#: region/models.py
+msgid "Parent Region"
+msgstr "上级区域"
+
+#: region/models.py
+msgid "Region Type"
+msgstr "区域类型"
+
+#: region/models.py
+msgid "Sort Order"
+msgstr "排序"
+
+#: region/models.py
+msgid "Tree Code"
+msgstr "树形代码"
+
+#: region/models.py
+msgid "Is Capital"
+msgstr "是否为首府/省会"
+
+#: region/models.py
+msgid "Region"
+msgstr "区域"
+
+#: region/models.py
+msgid "Regions"
+msgstr "区域"
+

@@ -2377,3 +2377,59 @@ msgstr "Active path"
 msgid "Path pattern used for menu highlighting"
 msgstr "Path pattern used for menu highlighting"
 
+#: region/models.py
+msgid "Country"
+msgstr "Country"
+
+#: region/models.py
+msgid "Province"
+msgstr "Province"
+
+#: region/models.py
+msgid "City"
+msgstr "City"
+
+#: region/models.py
+msgid "District"
+msgstr "District"
+
+#: region/models.py
+msgid "Region Code"
+msgstr "Region Code"
+
+#: region/models.py
+msgid "Region Name"
+msgstr "Region Name"
+
+#: region/models.py
+msgid "Full Name"
+msgstr "Full Name"
+
+#: region/models.py
+msgid "Parent Region"
+msgstr "Parent Region"
+
+#: region/models.py
+msgid "Region Type"
+msgstr "Region Type"
+
+#: region/models.py
+msgid "Sort Order"
+msgstr "Sort Order"
+
+#: region/models.py
+msgid "Tree Code"
+msgstr "Tree Code"
+
+#: region/models.py
+msgid "Is Capital"
+msgstr "Is Capital"
+
+#: region/models.py
+msgid "Region"
+msgstr "Region"
+
+#: region/models.py
+msgid "Regions"
+msgstr "Regions"
+
