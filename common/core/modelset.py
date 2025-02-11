@@ -605,10 +605,12 @@ class OnlyExportDataAction(ListAction):
     def export_data(self, request, *args, **kwargs):
         """导出{cls}数据"""
         self.format_kwarg = request.query_params.get('type', 'xlsx')
+        logger.info(f"query_params: {request.query_params}")
         request.no_cache = True  # 防止自定义缓存数据
         self.renderer_classes = [ExcelFileRenderer, CSVFileRenderer]
         request.accepted_renderer = None
         data = self.list(request, *args, **kwargs)
+        logger.info(f"export_data: {data.data}")
         return data
 
 

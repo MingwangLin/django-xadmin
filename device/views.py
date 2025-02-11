@@ -42,12 +42,11 @@ class DeviceViewSetFilter(BaseFilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
     device_id = filters.CharFilter(field_name='device_id', lookup_expr='icontains')
     manufacturer = filters.CharFilter(field_name='manufacturer', lookup_expr='icontains')
-    type = filters.CharFilter(field_name='type')
     status = filters.CharFilter(field_name='status')
 
     class Meta:
         model = Device
-        fields = ['name', 'device_id', 'manufacturer', 'type', 'status', 'is_bound', 'created_time', 'remark']
+        fields = ['name', 'device_id', 'manufacturer', 'status', 'is_bound', 'created_time', 'remark']
 
 
 class DeviceViewSet(BaseModelSet, ImportExportDataAction):
