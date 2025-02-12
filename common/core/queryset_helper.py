@@ -172,6 +172,114 @@ class QuerysetHelper:
         return queryset.filter(combined_q)
 
     @classmethod
+    def parse_formula(cls, formula, now, is_start):
+        from datetime import datetime, timedelta
+        from dateutil.relativedelta import relativedelta
+
+        if formula is None:
+            return None
+
+        if not isinstance(formula, str):
+            return None
+
+        formula = formula.strip()
+        if not formula:
+            return None
+
+        sign = None
+        if formula[0] in '+-':
+            sign = formula[0]
+            rest = formula[1:]
+        else:
+            rest = formula
+
+        if not rest:
+            return None
+
+        # Extract amount and unit
+        if rest[-1] in ('d', 'w', 'M', 'Q', 'y', 'm', 'q'):
+            unit = rest[-1]
+            amount_str = rest[:-1] or '1'
+        else:
+            return None  # Invalid unit
+
+        try:
+            amount = int(amount_str)
+        except ValueError:
+            return None  # Invalid amount
+
+        if amount < 0:
+            return None  # Amount should be positive
+
+        date = now
+
+        # Adjust date based on sign and unit
+        if sign in ('+', '-'):
+            if unit == 'd':
+                delta = timedelta(days=amount)
+            elif unit == 'w':
+                delta = timedelta(weeks=amount)
+            elif unit in ('M', 'm'):
+                delta = relativedelta(months=amount)
+            elif unit in ('Q', 'q'):
+                delta = relativedelta(months=3 * amount)
+            elif unit == 'y':
+                delta = relativedelta(years=amount)
+            else:
+                return None  # Invalid unit
+
+            if sign == '+':
+                date += delta
+            else:
+                date -= delta
+        else:
+            # sign is None, use current period
+            pass  # date remains as now
+
+        # Get start or end of the period
+        if unit == 'd':
+            if is_start:
+                return date.replace(hour=0, minute=0, second=0, microsecond=0)
+            else:
+                return date.replace(hour=23, minute=59, second=59, microsecond=999999)
+        elif unit == 'w':
+            weekday = date.weekday()  # Monday is 0
+            if is_start:
+                start_date = date - timedelta(days=weekday)
+                return start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            else:
+                end_date = date + timedelta(days=6 - weekday)
+                return end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+        elif unit in ('M', 'm'):
+            if is_start:
+                start_date = date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                return start_date
+            else:
+                next_month = date.replace(day=28) + timedelta(days=4)  # this will never fail
+                last_day = next_month - timedelta(days=next_month.day)
+                return last_day.replace(hour=23, minute=59, second=59, microsecond=999999)
+        elif unit in ('Q', 'q'):
+            # Compute the quarter
+            month = ((date.month - 1) // 3) * 3 + 1
+            if is_start:
+                start_date = date.replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+                return start_date
+            else:
+                month += 2
+                next_month = date.replace(month=month, day=28) + timedelta(days=4)
+                last_day = next_month - timedelta(days=next_month.day)
+                return last_day.replace(hour=23, minute=59, second=59, microsecond=999999)
+        elif unit == 'y':
+            if is_start:
+                start_date = date.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+                return start_date
+            else:
+                end_date = date.replace(month=12, day=31, hour=23, minute=59, second=59, microsecond=999999)
+                return end_date
+        else:
+            return None  # Invalid unit
+
+    @classmethod
     def _get_gbk_order(cls, field_name):
         """
         Helper method to create a GBK encoding expression for sorting.
