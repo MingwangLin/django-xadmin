@@ -31,10 +31,6 @@ class DeviceViewSetTests(APITestCase):
             is_staff=True,
             is_superuser=True
         )
-        # Set admin as their own creator and modifier
-        self.admin_user.creator = self.admin_user
-        self.admin_user.modifier = self.admin_user
-        self.admin_user.save()
         
         # Create test user
         self.user = UserInfo.objects.create_user(
@@ -232,6 +228,7 @@ class DeviceViewSetTests(APITestCase):
         bind_url = reverse('device:device-bind-channel', kwargs={'pk': self.device_1.pk})
         response = self.client.post(bind_url)
 
+        logger.error(f"test_bind_channel_success response.data: {response.data}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['data']['success'])
         

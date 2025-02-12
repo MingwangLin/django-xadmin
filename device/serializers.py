@@ -38,11 +38,11 @@ class DeviceSerializer(BaseModelSerializer):
                 'label': '关联通道',
             },
             'creator': {
-                'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
+                'attrs': ['pk', 'username'], 'required': False, 'format': "{username}({pk})",
                 'input_type': 'api-search-user'
             },
             'modifier': {
-                'attrs': ['pk', 'username'], 'required': True, 'format': "{username}({pk})",
+                'attrs': ['pk', 'username'], 'required': False, 'format': "{username}({pk})",
                 'input_type': 'api-search-user'
             }
         }
