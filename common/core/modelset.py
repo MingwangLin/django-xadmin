@@ -595,15 +595,42 @@ class UpdateAction(mixins.UpdateModelMixin):
 class FilterQuerySetMixin(object):
     """Mixin that adds complex filtering capabilities to a ViewSet's get_queryset method"""
     
+    def _update_query_params(self, request_data):
+        """Helper method to update query parameters from request data"""
+        from django.http.request import QueryDict
+        query_params = QueryDict('', mutable=True)
+        query_params.update(self.request.query_params)
+        
+        # Handle pagination parameters
+        page = request_data.get('page')
+        size = request_data.get('size')
+        if page is not None:
+            query_params['page'] = str(page)
+        if size is not None:
+            query_params['size'] = str(size)
+            
+        # Add any other query parameters from request_data that should be handled by DRF
+        drf_params = ['ordering', 'search', 'format']  # Add more parameters as needed
+        for param in drf_params:
+            if param in request_data:
+                query_params[param] = request_data[param]
+                
+        self.request.query_params = query_params
+    
     def get_queryset(self):
         from common.core.queryset_helper import QuerysetHelper
         queryset = super().get_queryset()
         request_data = self.request.data
 
         if type(request_data) == dict:
+            # Apply complex filters
             queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
             queryset = QuerysetHelper.get_general_sort_keys_filtered_queryset(request_data.get('sortkeys'), queryset, queryset.model)
             queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filterset_class.get_fields().keys())
+            
+            # Update query parameters for DRF features (pagination, etc.)
+            self._update_query_params(request_data)
+            
         return queryset
 
 
