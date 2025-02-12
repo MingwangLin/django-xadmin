@@ -1,7 +1,9 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
+from django.test import TransactionTestCase
 import mock
+from django.db import transaction
 
 from device.models import Device
 from device.serializers import DeviceSerializer
@@ -11,13 +13,14 @@ from device.models import Channel, DeviceChannel
 import logging
 logger = logging.getLogger(__name__)
 
-class DeviceViewSetTests(APITestCase):
+class DeviceViewSetTests(APITestCase, TransactionTestCase):
     def setUp(self):
-        # Clear the database first
-        Device.objects.all().delete()
-        UserInfo.objects.all().delete()
-        Channel.objects.all().delete()
-        DeviceChannel.objects.all().delete()
+        # Clear the database first using transactions
+        with transaction.atomic():
+            Device.objects.all().delete()
+            UserInfo.objects.all().delete()
+            Channel.objects.all().delete()
+            DeviceChannel.objects.all().delete()
         
         self.client = APIClient()
         self.client.defaults['HTTP_USER_AGENT'] = 'Mozilla/5.0 (test)'
@@ -43,10 +46,11 @@ class DeviceViewSetTests(APITestCase):
             modifier=self.admin_user  # Set the modifier as admin user
         )
         
+        # Ensure user is saved and force authenticate
         self.user.save()
-        
         self.client.force_authenticate(user=self.user)
         
+        # Create test devices
         self.device_1 = Device.objects.create(
             name="Test Device 1",
             device_id="DEV001",
@@ -65,7 +69,8 @@ class DeviceViewSetTests(APITestCase):
             creator=self.admin_user,
             modifier=self.admin_user
         )
-        # Using correct URL names from urls.py
+        
+        # Set up URLs
         self.list_url = reverse('device:device-list')
         self.detail_url = reverse('device:device-detail', kwargs={'pk': self.device_1.pk})
         self.query_url = reverse('device:device-query')
@@ -74,10 +79,13 @@ class DeviceViewSetTests(APITestCase):
 
     def tearDown(self):
         # Clean up all test data after each test
-        Device.objects.all().delete()
-        UserInfo.objects.all().delete()
-        Channel.objects.all().delete()
-        DeviceChannel.objects.all().delete()
+        try:
+            Device.objects.all().delete()
+            UserInfo.objects.all().delete()
+            Channel.objects.all().delete()
+            DeviceChannel.objects.all().delete()
+        except Exception as e:
+            print(f"Error during tearDown: {e}")
         super().tearDown()
 
     def test_list_devices(self):
@@ -215,6 +223,9 @@ class DeviceViewSetTests(APITestCase):
     @mock.patch('common.core.oss_helper.OSSHelper')
     def test_bind_channel_success(self, mock_oss_helper):
         """Test binding a channel to a device successfully"""
+        # Ensure test user exists and is authenticated
+        self.client.force_authenticate(user=self.user)
+        
         # Mock OSS helper and bucket
         mock_bucket = mock.MagicMock()
         mock_create_result = mock.MagicMock()
@@ -253,6 +264,9 @@ class DeviceViewSetTests(APITestCase):
     @mock.patch('common.core.oss_helper.OSSHelper')
     def test_bind_channel_multiple_times(self, mock_oss_helper):
         """Test binding multiple channels to a device"""
+        # Ensure test user exists and is authenticated
+        self.client.force_authenticate(user=self.user)
+        
         # Mock OSS helper and bucket
         mock_bucket = mock.MagicMock()
         mock_create_result = mock.MagicMock()

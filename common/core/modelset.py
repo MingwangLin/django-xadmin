@@ -598,24 +598,27 @@ class FilterQuerySetMixin(object):
     def _update_query_params(self, request_data):
         """Helper method to update query parameters from request data"""
         from django.http.request import QueryDict
-        query_params = QueryDict('', mutable=True)
-        query_params.update(self.request.query_params)
+        
+        # Create a new mutable QueryDict and update it with existing query params
+        query_dict = QueryDict('', mutable=True)
+        query_dict.update(self.request.query_params)
         
         # Handle pagination parameters
         page = request_data.get('page')
         size = request_data.get('size')
         if page is not None:
-            query_params['page'] = str(page)
+            query_dict['page'] = str(page)
         if size is not None:
-            query_params['size'] = str(size)
+            query_dict['size'] = str(size)
             
         # Add any other query parameters from request_data that should be handled by DRF
         drf_params = ['ordering', 'search', 'format']  # Add more parameters as needed
         for param in drf_params:
             if param in request_data:
-                query_params[param] = request_data[param]
-                
-        self.request.query_params = query_params
+                query_dict[param] = request_data[param]
+        
+        # Update the underlying _request.GET attribute
+        self.request._request.GET = query_dict
     
     def get_queryset(self):
         from common.core.queryset_helper import QuerysetHelper

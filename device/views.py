@@ -49,7 +49,7 @@ class DeviceViewSetFilter(BaseFilterSet):
         fields = ['name', 'device_id', 'manufacturer', 'status', 'is_bound', 'created_time', 'remark']
 
 
-class DeviceViewSet(BaseModelSet, ImportExportDataAction, FilterQuerySetMixin):
+class DeviceViewSet(FilterQuerySetMixin, BaseModelSet, ImportExportDataAction):
     """设备管理"""
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
@@ -128,7 +128,9 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction, FilterQuerySetMixin):
                 url=create_result.publish_url,  # Store the RTMP URL
                 frag_count=3,
                 frag_duration=5,
-                expired=timezone.now() + datetime.timedelta(days=365)  # Set expiration to 1 year
+                expired=timezone.now() + datetime.timedelta(days=365),  # Set expiration to 1 year
+                creator=request.user,
+                modifier=request.user
             )
             
             # Deactivate existing device channel associations
@@ -138,7 +140,9 @@ class DeviceViewSet(BaseModelSet, ImportExportDataAction, FilterQuerySetMixin):
             DeviceChannel.objects.create(
                 device=device,
                 channel=channel,
-                is_active=True
+                is_active=True,
+                creator=request.user,
+                modifier=request.user
             )
             
             # Update device bound status
