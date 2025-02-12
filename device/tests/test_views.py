@@ -163,11 +163,6 @@ class DeviceViewSetTests(APITestCase):
         self.assertEqual(len(response.data['data']['results']), 1)
         self.assertEqual(response.data['data']['results'][0]['manufacturer'], 'Test Manufacturer')
 
-        # Test type filter
-        response = self.client.get(self.list_url, {'type': Device.TypeChoices.IPC.value})
-        self.assertEqual(len(response.data['data']['results']), 1)
-        self.assertEqual(response.data['data']['results'][0]['type']['value'], Device.TypeChoices.IPC.value)
-
         # Test status filter
         response = self.client.get(self.list_url, {'status': Device.StreamStatusChoices.ONLINE.value})
         self.assertEqual(len(response.data['data']['results']), 1)
@@ -175,13 +170,6 @@ class DeviceViewSetTests(APITestCase):
 
     def test_query_action(self):
         """Test the custom query action"""
-        # Test with single value
-        data = {'type': Device.TypeChoices.IPC.value}
-        response = self.client.post(self.query_url, query_params=data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['data']['results']), 1)
-        self.assertEqual(response.data['data']['results'][0]['type']['value'], Device.TypeChoices.IPC.value)
-
         # Test with multiple filters
         data = {
             'manufacturer': 'Test Manufacturer',

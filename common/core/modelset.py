@@ -592,6 +592,21 @@ class UpdateAction(mixins.UpdateModelMixin):
         return self.update(request, *args, **kwargs)
 
 
+class FilterQuerySetMixin(object):
+    """Mixin that adds complex filtering capabilities to a ViewSet's get_queryset method"""
+    
+    def get_queryset(self):
+        from common.core.queryset_helper import QuerysetHelper
+        queryset = super().get_queryset()
+        request_data = self.request.data
+
+        if type(request_data) == dict:
+            queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
+            queryset = QuerysetHelper.get_general_sort_keys_filtered_queryset(request_data.get('sortkeys'), queryset, queryset.model)
+            queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filterset_class.get_fields().keys())
+        return queryset
+
+
 class OnlyExportDataAction(ListAction):
     @extend_schema(
         parameters=[
