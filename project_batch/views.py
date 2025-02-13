@@ -12,7 +12,7 @@ from common.core.pagination import DynamicPageNumber
 from common.core.queryset_helper import QuerysetHelper
 from project_batch.models import ProjectBatch
 from project_batch.serializers import ProjectBatchSerializer
-
+from common.core.modelset import FilterQuerySetMixin
 
 class ProjectBatchViewSetFilter(BaseFilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
@@ -42,23 +42,13 @@ class ProjectBatchViewSetFilter(BaseFilterSet):
                  'enable_ai_monitoring', 'show_ata_watermark', 'video_display_text', 'videos_per_room']
 
 
-class ProjectBatchViewSet(BaseModelSet, ImportExportDataAction):
+class ProjectBatchViewSet(FilterQuerySetMixin, BaseModelSet, ImportExportDataAction):
     """项目批次管理"""
     queryset = ProjectBatch.objects.all()
     serializer_class = ProjectBatchSerializer
     ordering_fields = ['created_time']
     filterset_class = ProjectBatchViewSetFilter
     pagination_class = DynamicPageNumber(1000)
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        request_data = self.request.data
-
-        if type(request_data) == dict:
-            queryset = QuerysetHelper.apply_filter(queryset, request_data.get('filter'))
-            queryset = QuerysetHelper.get_general_sort_keys_filtered_queryset(request_data.get('sortkeys'), queryset, queryset.model)
-            queryset = QuerysetHelper.get_search_text_multiple_filtered_queryset(request_data, queryset, self.filterset_class.get_fields().keys())
-        return queryset
 
     @extend_schema(
         parameters=[
