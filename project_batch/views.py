@@ -11,7 +11,7 @@ from common.core.modelset import BaseModelSet, ImportExportDataAction
 from common.core.pagination import DynamicPageNumber
 from common.core.queryset_helper import QuerysetHelper
 from project_batch.models import ProjectBatch
-from project_batch.serializers import ProjectBatchSerializer
+from project_batch.serializers import ProjectBatchSerializer, ProjectBatchPreviewSerializer
 from common.core.modelset import FilterQuerySetMixin
 
 class ProjectBatchViewSetFilter(BaseFilterSet):
@@ -75,4 +75,39 @@ class ProjectBatchViewSet(FilterQuerySetMixin, BaseModelSet, ImportExportDataAct
     @action(methods=['POST'], detail=False)
     def query(self, request, *args, **kwargs):
         """查询项目批次"""
+        return self.list(request, *args, **kwargs)
+
+class ProjectBatchPreviewViewSet(FilterQuerySetMixin, BaseModelSet, ImportExportDataAction):
+    """项目批次预览"""
+    queryset = ProjectBatch.objects.all()
+    serializer_class = ProjectBatchPreviewSerializer
+    ordering_fields = ['created_time']
+    filterset_class = ProjectBatchViewSetFilter
+    pagination_class = DynamicPageNumber(1000)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='filter',
+                type=OpenApiTypes.OBJECT,
+                description='Complex filter object with format: {"rel": "and|or", "cond": [{"field": "field_name", "method": "exact|contains|in|etc", "value": "value", "type": "text|datetime|etc"}]}',
+                required=False
+            ),
+            OpenApiParameter(
+                name='sortkeys',
+                type=build_array_type(build_basic_type(OpenApiTypes.STR)),
+                description='List of fields to sort by. Prefix with "-" for descending order. Example: ["-created_time", "name"]',
+                required=False
+            ),
+            OpenApiParameter(
+                name='searchtext',
+                type=OpenApiTypes.STR,
+                description='Text to search across multiple fields defined in filter_fields',
+                required=False
+            ),
+        ]
+    )
+    @action(methods=['POST'], detail=False)
+    def query(self, request, *args, **kwargs):
+        """查询项目批次预览"""
         return self.list(request, *args, **kwargs)

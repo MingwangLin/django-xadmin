@@ -33,4 +33,13 @@ class ProjectBatchSerializer(BaseModelSerializer):
         ]
         extra_kwargs = {
             'pk': {'read_only': True}
+        }
+
+class ProjectBatchPreviewSerializer(BaseModelSerializer):
+    class Meta:
+        model = models.ProjectBatch
+        fields = ['pk', 'name', 'code', 'ets_code', 'short_name', 'exam_type']
+        table_fields = ['pk', 'name', 'code', 'ets_code', 'short_name', 'exam_type']
+        extra_kwargs = {
+            'pk': {'read_only': True}
         } 
